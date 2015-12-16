@@ -1,9 +1,14 @@
 Changes
 lib/Karel.pm
+lib/Karel/Util.pm
+lib/Karel/Map.pm
+lib/Karel/Robot.pm
 Makefile.PL
 MANIFEST			This list of files
 README
 t/00-load.t
+t/01-map.t
+t/02-robot.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

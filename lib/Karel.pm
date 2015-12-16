@@ -1,8 +1,12 @@
 package Karel;
 
-use 5.006;
+use 5.010;
 use strict;
 use warnings;
+
+use Karel::Robot;
+use Karel::Map;
+
 
 =head1 NAME
 
@@ -28,12 +32,7 @@ Perhaps a little code snippet.
     my $foo = Karel->new();
     ...
 
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
+=head1 METHODS
 
 =head2 function1
 
@@ -138,4 +137,4 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Karel
+__PACKAGE__
