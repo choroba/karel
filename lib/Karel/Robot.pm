@@ -17,9 +17,11 @@ my $grid_type    = sub {
     'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
 };
 
-my $valid_mode = do {
-    my %modes = map { $_ => 1 } qw( born edit run );
-    sub { $modes{+shift} or croak "Ivalid mode" }
+my $string_list = sub {
+    do {
+        my %strings = map { $_ => 1 } @_;
+        sub { $strings{+shift} or croak "Invalid string" }
+    }
 };
 
 
@@ -32,9 +34,19 @@ has grid => ( is  => 'rwp',
            );
 
 has mode => ( is      => 'rwp',
-              isa     => $valid_mode,
+              isa     => $string_list->(qw( born edit run )),
               default => 'born',
             );
+
+has direction => ( is      => 'rwp',
+                   isa     => $string_list->(qw( N W S E )),
+                   default => 'N',
+                 );
+
+before direction => sub {
+    my $self = shift;
+    croak "No direction without map!" if 'born' eq $self->mode;
+};
 
 
 sub set_grid {
