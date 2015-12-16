@@ -60,7 +60,17 @@ sub set_grid {
 }
 
 
-sub step {
+sub left {
+    my $self = shift;
+    my $dir = $self->direction;
+    $self->_set_direction({ N => 'W',
+                            W => 'S',
+                            S => 'E',
+                            E => 'N',
+                          }->{$dir});
+}
+
+sub run_step {
     my $self = shift;
     croak "Not running a program!" unless 'run' eq $self->mode;
 }
