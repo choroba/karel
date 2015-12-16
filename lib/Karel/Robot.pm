@@ -13,8 +13,8 @@ use Carp;
 use Moo;
 use namespace::clean;
 
-my $map_type    = sub {
-    'Karel::Map' eq ref shift or croak "Invalid map type\n"
+my $grid_type    = sub {
+    'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
 };
 
 my $valid_mode = do {
@@ -27,8 +27,8 @@ has $_  => ( is  => 'rwp',
              isa => \&positive_int,
            ) for qw( x y );
 
-has map => ( is  => 'rwp',
-             isa => $map_type,
+has grid => ( is  => 'rwp',
+              isa => $grid_type,
            );
 
 has mode => ( is      => 'rwp',
@@ -37,11 +37,11 @@ has mode => ( is      => 'rwp',
             );
 
 
-sub set_map {
+sub set_grid {
     my $self = shift;
-    my ($map, $x, $y) = @_;
-    $map->at($x, $y) =~ /w/i and croak "Can't go through walls";
-    $self->_set_map($map);
+    my ($grid, $x, $y) = @_;
+    $grid->at($x, $y) =~ /w/i and croak "Can't go through walls";
+    $self->_set_grid($grid);
     $self->_set_x($x);
     $self->_set_y($y);
     $self->_set_mode('edit');

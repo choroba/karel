@@ -1,7 +1,7 @@
 Changes
 lib/Karel.pm
 lib/Karel/Util.pm
-lib/Karel/Map.pm
+lib/Karel/Grid.pm
 lib/Karel/Robot.pm
 Makefile.PL
 MANIFEST			This list of files

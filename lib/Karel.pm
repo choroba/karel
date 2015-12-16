@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Karel::Robot;
-use Karel::Map;
+use Karel::Grid;
 
 
 =head1 NAME

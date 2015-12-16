@@ -1,6 +1,6 @@
-package Karel::Map;
+package Karel::Grid;
 
-=head1 Karel::Map
+=head1 Karel::Grid
 
 =cut
 
@@ -28,6 +28,7 @@ has _grid => ( is  => 'rw',
                    },
              );
 
+# Create an empty grid
 sub BUILD {
     my $self = shift;
     my ($x, $y) = map $self->$_, qw( getx gety );

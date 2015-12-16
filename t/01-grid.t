@@ -5,9 +5,9 @@ use strict;
 #use Data::Dumper;
 
 use Test::More;
-use Karel::Map;
+use Karel::Grid;
 
-my $m = 'Karel::Map'->new(x => 1, y => 2);
+my $m = 'Karel::Grid'->new(x => 1, y => 2);
 
 is($m->at(1, 2), ' ', 'map');
 is($m->at(0, 0), 'W', 'wall');
