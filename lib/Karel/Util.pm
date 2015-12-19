@@ -1,6 +1,27 @@
 package Karel::Util;
 
-=head1 Karel::Util
+=head1 NAME
+
+Karel::Util
+
+=head1 DESCRITPTION
+
+Helper functions for other packages.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item m_to_n($i, $m, $n)
+
+Checks whether the integer C<$i> lies between C<$m> and C<$n>
+inclusive.
+
+=item positive_int($i)
+
+Checks whether C<$i> is a positive integer, i.e. C<m_to_n($i, 1, $i)>.
+
+=back
 
 =cut
 

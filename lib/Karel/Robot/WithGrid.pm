@@ -1,6 +1,20 @@
 package Karel::Robot::WithGrid;
 
-=head1 WithGrid
+=head1 NAME
+
+Karel::Robot::WithGrid
+
+=head1 DESCRIPTION
+
+A robot with an associated grid. To create the robot, use
+
+    my $robot = 'Karel::Robot'->new;
+    my $grid  = 'Karel::Grid'->new(x => 10, y => 12);
+    $robot = $robot->set_grid($grid, 1, 1);
+
+=head1 METHODS
+
+=over 4
 
 =cut
 
@@ -13,17 +27,33 @@ use Moo;
 use namespace::clean;
 
 
+=item $robot->x, $robot->y
+
+    my ($x, $y) = map $robot->$_, qw( x y );
+
+Coordinates of the robot in its grid.
+
+=cut
+
 has "$_"  => ( is  => 'rwp',
-                isa => \&positive_int,
-              ) for qw( x y );
+               isa => \&positive_int,
+             ) for qw( x y );
 
 my $grid_type    = sub {
     'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
 };
 
+=item $robot->grid
+
+    my $grid = $robot->grid;
+
+The associated C<Karel::Grid> object.
+
+=cut
+
 has 'grid' => ( is  => 'rwp',
-                 isa => $grid_type,
-           );
+                isa => $grid_type,
+              );
 
 my $string_list = sub {
     do {
@@ -32,11 +62,18 @@ my $string_list = sub {
     }
 };
 
-has 'direction' => ( is      => 'rwp',
-                      isa     => $string_list->(qw( N W S E )),
-                      default => 'N',
-                 );
+=item $robot->direction
 
+  my $direction = $robot->direction;
+
+Returns the robot's direction: one of C<qw( N W S E )>.
+
+=cut
+
+has 'direction' => ( is      => 'rwp',
+                     isa     => $string_list->(qw( N W S E )),
+                     default => 'N',
+                   );
 
 sub BUILD {
     my $self = shift;
@@ -47,6 +84,11 @@ sub BUILD {
     $self->_set_y($y);
 }
 
+=item $robot->left
+
+Turn the robot to the left.
+
+=cut
 
 sub left {
     my $self = shift;
@@ -59,6 +101,9 @@ sub left {
 }
 
 
+=back
 
+=cut
 
 __PACKAGE__
+
