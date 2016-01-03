@@ -37,7 +37,7 @@ sub m_to_n {
     my ($i, $m, $n) = @_;
     defined && /[0-9]+/ or croak "$_ should be non negative integer"
         for $i, $m, $n;
-    $m <= $i && $i <= $n or croak "$i bigger than $n";
+    $m <= $i && $i <= $n or croak "$i not between $m and $n";
 }
 
 
