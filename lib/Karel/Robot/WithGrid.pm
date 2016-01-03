@@ -23,6 +23,7 @@ use strict;
 use parent 'Karel::Robot';
 use Karel::Util qw{ positive_int };
 use Carp;
+use List::Util qw{ first };
 use Moo;
 use namespace::clean;
 
@@ -90,14 +91,12 @@ Turn the robot to the left.
 
 =cut
 
+my @directions = qw( N W S E );
 sub left {
     my $self = shift;
     my $dir = $self->direction;
-    $self->_set_direction({ N => 'W',
-                            W => 'S',
-                            S => 'E',
-                            E => 'N',
-                          }->{$dir});
+    my $idx = first { $directions[$_] eq $dir } 0 .. $#directions;
+    $self->_set_direction($directions[ ($idx + 1) % @directions ]);
 }
 
 
