@@ -12,6 +12,7 @@ my $m = 'Karel::Grid'->new(x => 1, y => 2);
 is($m->at(1, 2), ' ', 'map');
 is($m->at(0, 0), 'W', 'wall');
 is($m->at(2, 2), 'W', 'wall');
+isnt(eval { $m->at(3, 1); 1 }, 1, 'out of range');
 
 $m->build_wall(1, 2);
 is($m->at(1, 2), 'w', 'wall built');
