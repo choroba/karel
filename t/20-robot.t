@@ -8,12 +8,13 @@ use Test::More;
 
 my $k = 'Karel::Robot'->new;
 ok($k, 'constructor');
-ok($k->DOES('Karel::Robot'), 'type');
 is(ref $k, 'Karel::Robot');
 isnt(eval { $k->left; 1 }, 1, 'no direction');
+isnt(eval { $k->grid; 1 }, 1, 'no grid');
 
 my $m = 'Karel::Grid'->new(x => 1, y => 2);
-$k = $k->set_grid($m, 1, 1);
+$k->set_grid($m, 1, 1);
+is($k->grid, $m, 'grid');
 is(ref $k, 'Karel::Robot::WithGrid');
 is($k->direction, 'N', 'default direction');
 

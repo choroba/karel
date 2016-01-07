@@ -19,7 +19,7 @@ use strict;
 
 use Data::Dumper;
 use Carp;
-use Module::Load;
+use Module::Load qw{ load };
 use Moo;
 use namespace::clean;
 
@@ -29,20 +29,19 @@ The constructor. It takes no parameters.
 
 =item $robot->set_grid($grid, $x, $y)
 
-Returns a new C<Karel::Robot::WithGrid> instance based on
+Upgrades the robot to the C<Karel::Robot::WithGrid> instance based on
 $robot. C<$grid> must be a C<Karel::Grid> instance, $x and $y denote
 the position of the robot in the grid.
 
 =cut
 
 sub set_grid {
-    my $self = shift;
-    my ($grid, $x, $y) = @_;
-    load(__PACKAGE__ . '::WithGrid');
-    $self = 'Karel::Robot::WithGrid'->new(grid => $grid,
-                                          x    => $x,
-                                          y    => $y);
-    return $self
+    my ($self, $grid, $x, $y) = @_;
+    my $with_grid_class = ref($self) . '::WithGrid';
+    load($with_grid_class);
+    $_[0] = $with_grid_class->new(grid => $grid,
+                                  x    => $x,
+                                  y    => $y);
 }
 
 =back

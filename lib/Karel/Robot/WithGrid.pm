@@ -40,10 +40,6 @@ has "$_"  => ( is  => 'rwp',
                isa => \&positive_int,
              ) for qw( x y );
 
-my $grid_type    = sub {
-    'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
-};
-
 =item $robot->grid
 
     my $grid = $robot->grid;
@@ -52,16 +48,14 @@ The associated C<Karel::Grid> object.
 
 =cut
 
+my $grid_type    = sub {
+    'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
+};
+
+
 has 'grid' => ( is  => 'rwp',
                 isa => $grid_type,
               );
-
-my $string_list = sub {
-    do {
-        my %strings = map { $_ => 1 } @_;
-        sub { $strings{+shift} or croak "Invalid string" }
-    }
-};
 
 =item $robot->direction
 
@@ -70,6 +64,13 @@ my $string_list = sub {
 Returns the robot's direction: one of C<qw( N W S E )>.
 
 =cut
+
+my $string_list = sub {
+    do {
+        my %strings = map { $_ => 1 } @_;
+        sub { $strings{+shift} or croak "Invalid string" }
+    }
+};
 
 has 'direction' => ( is      => 'rwp',
                      isa     => $string_list->(qw( N W S E )),
