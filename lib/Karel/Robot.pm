@@ -112,8 +112,7 @@ sub load_grid {
             next if 'W' eq $chars[$c]
                  && (   $r == 0 || $r == $y + 1
                      || $c == 0 || $c == $x + 1);
-            my $build = { W   => 'build_wall',
-                          w   => 'build_wall',
+            my $build = { w   => 'build_wall',
                           ' ' => 'clear',
                           # marks
                           ( map {
