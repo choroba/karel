@@ -57,6 +57,19 @@ has 'grid' => ( is  => 'rwp',
                 isa => $grid_type,
               );
 
+=item $robot->set_grid($grid, $x, $y);
+
+=cut
+
+sub set_grid {
+    my ($self, $grid, $x, $y) = @_;
+    $self->_set_grid($grid);
+    $self->_set_x($x);
+    $self->_set_y($y);
+    croak "Wall at starting position" if $self->cover =~ /w/i;
+
+}
+
 =item $robot->direction
 
   my $direction = $robot->direction;
@@ -100,6 +113,29 @@ sub left {
     $self->_set_direction($directions[ ($idx + 1) % @directions ]);
 }
 
+=item $robot->coords
+
+Returns the robot's coordinates, i.e. C<x> and C<y>.
+
+=cut
+
+sub coords {
+    my ($self) = @_;
+    return ($self->x, $self->y)
+}
+
+=item $robot->cover
+
+Returns the grid element at the robot's coordinates, i.e.
+
+  $r->grid->at($r->coords)
+
+=cut
+
+sub cover {
+    my ($self) = @_;
+    return $self->grid->at($self->coords)
+}
 
 =back
 

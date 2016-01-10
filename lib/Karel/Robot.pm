@@ -50,8 +50,19 @@ sub set_grid {
 
 =cut
 
+my %faces = ( '^' => 'N',
+              '>' => 'E',
+              'v' => 'S',
+              '<' => 'W' );
+
 sub load_grid {
     my ($self, $type, $that) = @_;
+
+    my %backup;
+    if ($self->can('grid')) {
+        @backup{qw{ grid x y direction }} = map $self->$_,
+                qw( grid x y direction );
+    }
 
     my $IN;
     my $open = { file   => sub { open $IN, '<', $that or croak "$that: $!" },
@@ -69,32 +80,55 @@ sub load_grid {
                                  );
 
     my $r = 0;
+    my (@pos, $direction);
     while (<$IN>) {
         chomp;
         my @chars = split //;
-        for my $c (0 .. $#chars) {
+        my $c = 0;
+        while ($c != $#chars) {
             next if 'W' eq $chars[$c]
                  && (   $r == 0 || $r == $y + 1
                      || $c == 0 || $c == $x + 1);
             my $build = { W   => 'build_wall',
                           w   => 'build_wall',
                           ' ' => 'clear',
-                          map {
+                          # marks
+                          ( map {
                               my $x = $_;
                               $x => sub {
                                   $_[0]->drop_mark(@_[1, 2]) for 1 .. $x
                               }
-                          } 1 .. 9
+                          } 1 .. 9 ),
+                          # robot
+                          ( map {
+                              my $f = $_;
+                              $f => sub {
+                                  croak 'Two robots in a grid' if $direction;
+                                  $direction = $faces{$f};
+                                  @pos = ($c, $r);
+                                  splice @chars, $c, 1;
+                                  no warnings 'exiting';
+                                  redo
+                              }
+                          } keys %faces )
                         }->{ $chars[$c] };
             croak "Unknown grid character '$chars[$c]'" unless $build;
             $grid->$build($c, $r);
+        } continue {
+            ++$c;
         }
     } continue {
         ++$r;
     }
 
-    $_[0]->set_grid($grid, 1, 1);
-
+    eval {
+        $_[0]->set_grid($grid, @pos);
+    1 } or do {
+        $_[0]->set_grid(@backup{qw{ grid x y }});
+        $_[0]->left until $_[0]->direction eq $backup{direction};
+        croak $@
+    };
+    $_[0]->left until $_[0]->direction eq $direction;
 }
 
 
