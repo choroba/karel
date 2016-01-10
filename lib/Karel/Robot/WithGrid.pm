@@ -57,15 +57,16 @@ has 'grid' => ( is  => 'rwp',
                 isa => $grid_type,
               );
 
-=item $robot->set_grid($grid, $x, $y);
+=item $robot->set_grid($grid, $x, $y, $direction);
 
 =cut
 
 sub set_grid {
-    my ($self, $grid, $x, $y) = @_;
+    my ($self, $grid, $x, $y, $direction) = @_;
     $self->_set_grid($grid);
     $self->_set_x($x);
     $self->_set_y($y);
+    $self->_set_direction($direction) if $direction;
     croak "Wall at starting position" if $self->cover =~ /w/i;
 
 }
@@ -89,15 +90,6 @@ has 'direction' => ( is      => 'rwp',
                      isa     => $string_list->(qw( N W S E )),
                      default => 'N',
                    );
-
-sub BUILD {
-    my $self = shift;
-    my ($x, $y, $grid) = map $self->$_, qw( x y grid );
-    $grid->at($x, $y) =~ /w/i and croak "Can't go through walls";
-    $self->_set_grid($grid);
-    $self->_set_x($x);
-    $self->_set_y($y);
-}
 
 =item $robot->left
 

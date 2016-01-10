@@ -23,30 +23,53 @@ use Karel::Grid;
 use Carp;
 use Module::Load qw{ load };
 use Moo;
+use Syntax::Construct qw{ // };
 use namespace::clean;
 
 =item my $robot = 'Karel::Robot'->new
 
 The constructor. It takes no parameters.
 
-=item $robot->set_grid($grid, $x, $y)
+=item $robot->set_grid($grid, $x, $y, $direction)
 
 Upgrades the robot to the C<Karel::Robot::WithGrid> instance based on
 $robot. C<$grid> must be a C<Karel::Grid> instance, $x and $y denote
-the position of the robot in the grid.
+the position of the robot in the grid. Optional $direction is one of
+C<N E S W> (for North, East, South, and West), defaults to C<N>.
 
 =cut
 
 sub set_grid {
-    my ($self, $grid, $x, $y) = @_;
+    my ($self, $grid, $x, $y, $direction) = @_;
+    $direction //= 'N';
     my $with_grid_class = ref($self) . '::WithGrid';
     load($with_grid_class);
-    $_[0] = $with_grid_class->new(grid => $grid,
-                                  x    => $x,
-                                  y    => $y);
+    bless $_[0], $with_grid_class;
+    $self->set_grid($grid, $x, $y, $direction);
 }
 
 =item $robot->load_grid( [ file | handle ] => '...' )
+
+Loads grid from the given source. You can specify a scalar reference
+as C<file>, too. The format of the input is as follows:
+
+ # karel 4 2
+ WWWWWW
+ W   v W
+ W1w  W
+ WWWWWW
+
+The first line specifies width and height of the grid. An ASCII map of
+the grid follows with the following symbols:
+
+ W      outer wall
+ w      inner wall
+ space  blank
+ 1 .. 9 marks
+
+The robot's position and direction is denoted by either of C<< ^ > v <
+>> B<preceding> the cell in which the robot should start. In the
+example above, the robots starts at coordinates 4, 1 and faces South.
 
 =cut
 
@@ -122,13 +145,11 @@ sub load_grid {
     }
 
     eval {
-        $_[0]->set_grid($grid, @pos);
+        $_[0]->set_grid($grid, @pos, $direction);
     1 } or do {
-        $_[0]->set_grid(@backup{qw{ grid x y }});
-        $_[0]->left until $_[0]->direction eq $backup{direction};
+        $_[0]->set_grid(@backup{qw{ grid x y direction }});
         croak $@
     };
-    $_[0]->left until $_[0]->direction eq $direction;
 }
 
 

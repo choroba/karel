@@ -41,7 +41,7 @@ is($r->direction, 'S', 'direction');
 eval { $r->load_grid( file => \<< '__GRID__' ) };
 # karel 1 1
 WWW
-W>WW
+W>wW
 WWW
 __GRID__
 
