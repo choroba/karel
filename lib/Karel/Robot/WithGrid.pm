@@ -129,6 +129,37 @@ sub cover {
     return $self->grid->at($self->coords)
 }
 
+=item $robot->facing_coords
+
+Returns the coordinates of the grid element the robot is facing.
+
+=cut
+
+my %facing = ( N => [0, -1],
+               E => [1, 0],
+               S => [0, 1],
+               W => [-1, 0]
+             );
+
+sub facing_coords {
+    my $self = shift;
+    my $direction = $self->direction;
+    my @coords = map $_ + shift @{ $facing{$direction} }, $self->coords;
+    return @coords
+}
+
+=item $robot->facing
+
+Returns the contents of the grid element the robot is facing.
+
+=cut
+
+sub facing {
+    my $self = shift;
+    $self->grid->at($self->facing_coords)
+}
+
+
 =back
 
 =cut

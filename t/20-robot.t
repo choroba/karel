@@ -25,5 +25,13 @@ is($k->direction, 'N', 'back north');
 
 isnt(eval { $k->run_step; 1 }, 1, 'no step in edit mode');
 
+is($k->facing, 'W', 'facing wall');
+$k->left;
+my @f = $k->facing_coords;
+is($f[0], 0, 'facing x coord');
+is($f[1], 1, 'facing y coord');
+$k->left;
+is($k->facing, ' ', 'facing blank');
+
 done_testing();
 
