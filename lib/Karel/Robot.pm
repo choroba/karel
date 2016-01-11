@@ -42,11 +42,23 @@ C<N E S W> (for North, East, South, and West), defaults to C<N>.
 sub set_grid {
     my ($self, $grid, $x, $y, $direction) = @_;
     $direction //= 'N';
-    my $with_grid_class = ref($self) . '::WithGrid';
-    load($with_grid_class);
-    bless $_[0], $with_grid_class;
-    $self->set_grid($grid, $x, $y, $direction);
+    my $with_grid_class = $self->class_with_grid;
+    if (ref $self ne $with_grid_class) {
+        load($with_grid_class);
+        bless $_[0], $with_grid_class;
+        $self->set_grid($grid, $x, $y, $direction);
+    }
 }
+
+=item class_with_grid
+
+The class to which the robot is reblessed after obraining the grid. By
+default, it's the robot's class plus C<::WithGrid>.
+
+=cut
+
+sub class_with_grid { ref(shift) . '::WithGrid' }
+
 
 =item $robot->load_grid( [ file | handle ] => '...' )
 

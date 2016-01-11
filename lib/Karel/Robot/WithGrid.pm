@@ -59,6 +59,8 @@ has 'grid' => ( is  => 'rwp',
 
 =item $robot->set_grid($grid, $x, $y, $direction);
 
+???
+
 =cut
 
 sub set_grid {
@@ -68,7 +70,6 @@ sub set_grid {
     $self->_set_y($y);
     $self->_set_direction($direction) if $direction;
     croak "Wall at starting position" if $self->cover =~ /w/i;
-
 }
 
 =item $robot->direction

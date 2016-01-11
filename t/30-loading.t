@@ -48,7 +48,7 @@ __GRID__
 like($@, qr/Wall at starting position/, 'start pos check');
 is($r->x, 3, 'x backup');
 is($r->y, 3, 'y backup');
-is($r->direction, 'S', 'direction bakcup');
+is($r->direction, 'S', 'direction backup');
 
 
 done_testing();
