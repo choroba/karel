@@ -54,7 +54,7 @@ has _grid => ( is  => 'rw',
 
 # Create an empty grid
 sub BUILD {
-    my $self = shift;
+    my ($self) = @_;
     my ($x, $y) = map $self->$_, qw( x y );
     $self->_grid([ map [ (' ') x ($y + 2) ], 0 .. $x + 1 ]);
     $self->_set($_, 0, 'W'), $self->_set($_, $y + 1, 'W') for 0 .. $x + 1;

@@ -99,7 +99,7 @@ Turn the robot to the left.
 
 my @directions = qw( N W S E );
 sub left {
-    my $self = shift;
+    my ($self) = @_;
     my $dir = $self->direction;
     my $idx = first { $directions[$_] eq $dir } 0 .. $#directions;
     $self->_set_direction($directions[ ($idx + 1) % @directions ]);
@@ -142,7 +142,7 @@ my %facing = ( N => [0, -1],
              );
 
 sub facing_coords {
-    my $self = shift;
+    my ($self) = @_;
     my $direction = $self->direction;
     my @coords = map $_ + shift @{ $facing{$direction} }, $self->coords;
     return @coords
@@ -155,7 +155,7 @@ Returns the contents of the grid element the robot is facing.
 =cut
 
 sub facing {
-    my $self = shift;
+    my ($self) = @_;
     $self->grid->at($self->facing_coords)
 }
 
