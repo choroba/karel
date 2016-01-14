@@ -18,7 +18,7 @@ W9wW
 WWWW
 __GRID__
 
-is(eval { $r->load_grid( file => \$G1 ); 1 }, 1, 'loaded');
+is(eval { $r->load_grid( string => $G1 ); 1 }, 1, 'loaded');
 is($r->x, 1, 'x');
 is($r->y, 1, 'y');
 is($r->direction, 'E', 'direction');
@@ -33,12 +33,12 @@ W9wv  W
 WWWWWW
 __GRID__
 
-is(eval { $r->load_grid( file => \$G2 ); 1 }, 1, 'loaded');
+is(eval { $r->load_grid( string => $G2 ); 1 }, 1, 'loaded');
 is($r->x, 3, 'x');
 is($r->y, 3, 'y');
 is($r->direction, 'S', 'direction');
 
-eval { $r->load_grid( file => \<< '__GRID__' ) };
+eval { $r->load_grid( string => << '__GRID__' ) };
 # karel 1 1
 WWW
 W>wW

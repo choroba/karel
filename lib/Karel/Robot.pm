@@ -101,6 +101,7 @@ sub load_grid {
 
     my $IN;
     my $open = { file   => sub { open $IN, '<', $that or croak "$that: $!" },
+                 string => sub { open $IN, '<', \$that or croak "'$that': $!" },
                  handle => sub { $IN = $that },
                }->{$type};
     croak "Unknown type $type" unless $open;
