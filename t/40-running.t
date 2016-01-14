@@ -6,6 +6,14 @@ use Karel::Robot;
 use Test::More;
 
 
+sub count_steps {
+    my $r = shift;
+    my $c = 0;
+    $c++, $r->step while $r->is_running;
+    return $c
+}
+
+
 my $r = 'Karel::Robot'->new;
 
 $r->load_grid( string => << '__GRID__');
@@ -33,11 +41,58 @@ isnt(eval { $r->step; 1 }, 1, "can't step");
 
 
 $r->_run([ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['s'] ]);
-my $c = 0;
-$c++, $r->step while $r->is_running;
-is($c, 7, 'step count');
+
+is(count_steps($r), 11, 'step count');
+
 is($r->direction, 'E', 'right=3xleft');
 is($r->x, 3, 'moved');
 
+$r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
+$r->_run([ ['r', 9, [ ['d'] ] ] ]);
+
+is(count_steps($r), 10, 'steps=10');
+
+is($r->cover, '9', 'dropped all');
+
+$r->_run([ ['r', 3, [ ['r', 3, [ ['p'] ] ] ] ] ]);
+
+is(count_steps($r), 13, 'steps=13');
+
+is($r->cover, ' ', 'picked all');
+
+$r->load_grid( string => << '__GRID__');
+# karel 3 3
+WWWWW
+W   W
+W   W
+W ^  W
+WWWWW
+__GRID__
+
+$r->_run([ ['w', '!w', [ ['s'] ] ],
+           ['i', 'w', [ ['l'], ['l'] ] ],
+           ['i', 'm', [ ['p'] ], [ ['d'] ] ] ] );
+$r->step while $r->is_running;
+is($r->y, 1, 'moved up');
+is($r->direction, 'S', 'turned');
+is($r->cover, '1', 'dropped');
+
+
+$r->load_grid( string => << '__GRID__');
+# karel 1 4
+WWW
+W W
+W W
+W W
+W^ W
+WWW
+__GRID__
+
+$r->_run([ ['r', 4, [ ['i', '!w', [ ['s'] ] ], ['d'] ] ], ['l'], ['l'] ]);
+$r->step while $r->is_running;
+is($r->y, 1, 'walked');
+is($r->direction, 'S', 'turned');
+is($r->cover, 2, 'two marks');
+is($r->facing, 1, 'one mark');
 
 done_testing();

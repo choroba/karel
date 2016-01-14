@@ -24,10 +24,12 @@ use parent 'Karel::Robot';
 use Karel::Util qw{ positive_int };
 use Carp;
 use List::Util qw{ first };
+use Clone qw{ clone };
 use Moo;
 use constant {
-    CONTINUE => 0,
-    FINISHED => 1,
+    CONTINUE         => 0,
+    FINISHED         => 1,
+    FINISHED_DELAYED => 2,
 };
 use namespace::clean;
 
@@ -73,6 +75,31 @@ sub set_grid {
     $self->_set_y($y);
     $self->_set_direction($direction) if $direction;
     croak "Wall at starting position" if $self->cover =~ /w/i;
+}
+
+=item $robot->drop_mark
+
+Drop mark in the current location. Dies if there are already 9 marks.
+
+=cut
+
+sub drop_mark {
+    my ($self) = shift;
+    $self->grid->drop_mark($self->coords);
+    return 1
+}
+
+=item $robot->pick_mark
+
+Picks up one mark from the current location. Dies if there's nothing
+to pick.
+
+=cut
+
+sub pick_mark {
+    my ($self) = shift;
+    $self->grid->pick_mark($self->coords);
+    return 1
 }
 
 =item $robot->direction
@@ -182,6 +209,11 @@ sub _pop_stack {
     $self->not_running unless @{ $self->_stack };
 }
 
+sub _push_stack {
+    my ($self, $commands) = @_;
+    unshift @{ $self->_stack }, [ clone($commands), 0 ];
+}
+
 
 sub _stacked { shift->_stack->[0] }
 
@@ -216,7 +248,8 @@ sub forward {
 =item $robot->repeat($count, $commands)
 
 Runs the C<repeat> command: decreases the counter, and if it's
-non-zero, pushes the body to the stack.
+non-zero, pushes the body to the stack. Returns 0 (CONTINUE) when it
+should stay in the stack, 1 (FINISHED) otherwise.
 
 =cut
 
@@ -224,13 +257,102 @@ sub repeat {
     my ($self, $count, $commands) = @_;
     if ($count) {
         $self->_stack_command->[1] = $count - 1;
-        unshift @{ $self->_stack }, [ $commands, 0 ];
+        $self->_push_stack($commands);
         return CONTINUE
 
     } else {
         return FINISHED
     }
 }
+
+=item $isnot_south = $robot->condition('!S')
+
+Solve the given condition. Supported parameters are:
+
+=over 4
+
+=item * N E S W
+
+Facing North, East, South, West
+
+=item * m
+
+Covering mark(s).
+
+=item * w
+
+Facing a wall.
+
+=item * !
+
+Negates the condition.
+
+=back
+
+Returns true or false, dies on invalid condition.
+
+=cut
+
+sub condition {
+    my ($self, $condition) = @_;
+    my $negation = $condition =~ s/!//;
+    my $result;
+
+    if ($condition =~ /^[NESW]$/) {
+        $result = $self->direction eq $condition;
+
+    } elsif ($condition eq 'w') {
+        $result = $self->facing =~ /w/i;
+
+    } elsif ($condition eq 'm') {
+        $result = $self->cover =~ /^[1-9]$/;
+
+    } else {
+        croak "Invalid condition '$condition'"
+    }
+
+    $result = ! $result if $negation;
+    return $result
+}
+
+=item $robot->If($condition, $commands, $else)
+
+If $condition is true, puts $commands to the stack, otherwise puts
+$else to the stack. Returns 2 (FINISH_DELAYED) in the former case, 1
+(FINISHED) in the latter one.
+
+=cut
+
+sub If {
+    my ($self, $condition, $commands, $else) = @_;
+    if ($self->condition($condition)) {
+        $self->_push_stack($commands);
+    } elsif ($else) {
+        $self->_push_stack($else);
+    } else {
+        return FINISHED
+    }
+    return FINISHED_DELAYED
+}
+
+=item $robot->While($condition, $commands)
+
+Similar to C<If>, but returns 0 (CONTINUE) if the condition is true,
+i.e. it stays in the stack.
+
+=cut
+
+sub While {
+    my ($self, $condition, $commands) = @_;
+    if ($self->condition($condition)) {
+        $self->_push_stack($commands);
+        return CONTINUE
+
+    } else {
+        return FINISHED
+    }
+}
+
 
 =item $robot->step
 
@@ -245,26 +367,32 @@ sub step {
     my ($commands, $index) = @{ $self->_stacked };
 
     my $command = $commands->[$index];
-    my $action = { s => 'forward',
-                   l => 'left',
-                   r => 'repeat',
+    my $action = { s   => 'forward',
+                   l   => 'left',
+                   p   => 'pick_mark',
+                   d   => 'drop_mark',
+                   r   => 'repeat',
+                   i   => 'If',
+                   w   => 'While',
+                   x => sub { FINISHED },
                  }->{ $command->[0] };
     croak "Unknown action " . $command->[0] unless $action;
 
-    # warn $command->[0];
     my $finished = $self->$action(@{ $command }[ 1 .. $#$command ]);
 
-    if ($finished) {
-        if (++$index > $#$commands) {
-            $self->_pop_stack;
+    { FINISHED, sub {
+          if (++$index > $#$commands) {
+              $self->_pop_stack;
 
-        } else {
-            $self->_stack->[0][1] = $index;
-        }
-    } else {
-        # warn 'goto';
-        goto &step
-    }
+          } else {
+              $self->_stack->[0][1] = $index;
+          }
+      },
+      CONTINUE, sub { @_ = ($self); goto &step },
+      FINISHED_DELAYED, sub {
+          $self->_stack->[1][0][ $self->_stack->[1][1] ][0] = 'x';
+      },
+    }->{ $finished }->();
 }
 
 =back
