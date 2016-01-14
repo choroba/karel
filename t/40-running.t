@@ -5,6 +5,7 @@ use strict;
 use Karel::Robot;
 use Test::More;
 
+
 my $r = 'Karel::Robot'->new;
 
 $r->load_grid( string => << '__GRID__');
@@ -29,6 +30,14 @@ is($r->direction, 'W', '2nd step');
 
 ok(! $r->_stack, 'stack empty');
 isnt(eval { $r->step; 1 }, 1, "can't step");
+
+
+$r->_run([ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['s'] ]);
+my $c = 0;
+$c++, $r->step while $r->is_running;
+is($c, 7, 'step count');
+is($r->direction, 'E', 'right=3xleft');
+is($r->x, 3, 'moved');
 
 
 done_testing();

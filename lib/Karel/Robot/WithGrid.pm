@@ -25,8 +25,11 @@ use Karel::Util qw{ positive_int };
 use Carp;
 use List::Util qw{ first };
 use Moo;
+use constant {
+    CONTINUE => 0,
+    FINISHED => 1,
+};
 use namespace::clean;
-
 
 =item $robot->x, $robot->y
 
@@ -104,6 +107,7 @@ sub left {
     my $dir = $self->direction;
     my $idx = first { $directions[$_] eq $dir } 0 .. $#directions;
     $self->_set_direction($directions[ ($idx + 1) % @directions ]);
+    return FINISHED
 }
 
 =item $robot->coords
@@ -178,6 +182,17 @@ sub _pop_stack {
     $self->not_running unless @{ $self->_stack };
 }
 
+
+sub _stacked { shift->_stack->[0] }
+
+sub _stack_command {
+    my $self = shift;
+    my ($commands, $index) = @{ $self->_stacked };
+    return $commands->[$index]
+}
+
+sub _stack_index { shift->_stacked->[1] }
+
 sub _run {
     my ($self, $prog) = @_;
     $self->_set__stack([ [$prog, 0] ]);
@@ -195,6 +210,26 @@ sub forward {
     my ($x, $y) = $self->facing_coords;
     $self->_set_x($x);
     $self->_set_y($y);
+    return FINISHED
+}
+
+=item $robot->repeat($count, $commands)
+
+Runs the C<repeat> command: decreases the counter, and if it's
+non-zero, pushes the body to the stack.
+
+=cut
+
+sub repeat {
+    my ($self, $count, $commands) = @_;
+    if ($count) {
+        $self->_stack_command->[1] = $count - 1;
+        unshift @{ $self->_stack }, [ $commands, 0 ];
+        return CONTINUE
+
+    } else {
+        return FINISHED
+    }
 }
 
 =item $robot->step
@@ -207,22 +242,28 @@ sub step {
     my ($self) = @_;
     croak 'Not running!' unless $self->is_running;
 
-    my $stacked = $self->_stack->[0];
-    my ($commands, $index) = @{ $stacked };
+    my ($commands, $index) = @{ $self->_stacked };
 
     my $command = $commands->[$index];
     my $action = { s => 'forward',
                    l => 'left',
+                   r => 'repeat',
                  }->{ $command->[0] };
     croak "Unknown action " . $command->[0] unless $action;
 
-    $self->$action($command->[1]);
+    # warn $command->[0];
+    my $finished = $self->$action(@{ $command }[ 1 .. $#$command ]);
 
-    if (++$index > $#$commands) {
-        $self->_pop_stack;
+    if ($finished) {
+        if (++$index > $#$commands) {
+            $self->_pop_stack;
 
+        } else {
+            $self->_stack->[0][1] = $index;
+        }
     } else {
-        $self->_stack->[0][1] = $index;
+        # warn 'goto';
+        goto &step
     }
 }
 
