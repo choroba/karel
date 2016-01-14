@@ -88,7 +88,10 @@ W^ W
 WWW
 __GRID__
 
-$r->_run([ ['r', 4, [ ['i', '!w', [ ['s'] ] ], ['d'] ] ], ['l'], ['l'] ]);
+$r->_run([ ['r', 4, [ ['i', '!w', [ ['s'] ] ],
+                      ['d'] ] ],
+           ['w', '!S', [ ['r', 3, [ ['l'] ] ] ] ] ]);
+
 $r->step while $r->is_running;
 is($r->y, 1, 'walked');
 is($r->direction, 'S', 'turned');
