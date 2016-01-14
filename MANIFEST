@@ -12,6 +12,7 @@ t/05-util.t
 t/10-grid.t
 t/20-robot.t
 t/30-loading.t
+t/40-running.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

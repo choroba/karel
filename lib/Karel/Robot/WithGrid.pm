@@ -145,7 +145,8 @@ my %facing = ( N => [0, -1],
 sub facing_coords {
     my ($self) = @_;
     my $direction = $self->direction;
-    my @coords = map $_ + shift @{ $facing{$direction} }, $self->coords;
+    my @coords = $self->coords;
+    $coords[$_] += $facing{$direction}[$_] for 0, 1;
     return @coords
 }
 
@@ -160,10 +161,73 @@ sub facing {
     $self->grid->at($self->facing_coords)
 }
 
+has _stack => ( is        => 'rwp',
+                predicate => 'is_running',
+                clearer   => 'not_running',
+                isa       => sub {
+                    my $s = shift;
+                    'ARRAY' eq ref $s or croak "Invalid stack";
+                    ! grep 'ARRAY' ne ref $_, @$s
+                        or croak "Invalid stack element";
+                }
+              );
+
+sub _pop_stack {
+    my $self = shift;
+    shift @{ $self->_stack };
+    $self->not_running unless @{ $self->_stack };
+}
+
+sub _run {
+    my ($self, $prog) = @_;
+    $self->_set__stack([ [$prog, 0] ]);
+}
+
+=item $robot->forward
+
+Moves the robot one cell forward in its direction.
+
+=cut
+
+sub forward {
+    my ($self) = @_;
+    croak "Can't walk through walls" if $self->facing =~ /w/i;
+    my ($x, $y) = $self->facing_coords;
+    $self->_set_x($x);
+    $self->_set_y($y);
+}
+
+=item $robot->step
+
+Makes one step in the currently running program.
+
+=cut
+
+sub step {
+    my ($self) = @_;
+    croak 'Not running!' unless $self->is_running;
+
+    my $stacked = $self->_stack->[0];
+    my ($commands, $index) = @{ $stacked };
+
+    my $command = $commands->[$index];
+    my $action = { s => 'forward',
+                   l => 'left',
+                 }->{ $command->[0] };
+    croak "Unknown action " . $command->[0] unless $action;
+
+    $self->$action($command->[1]);
+
+    if (++$index > $#$commands) {
+        $self->_pop_stack;
+
+    } else {
+        $self->_stack->[0][1] = $index;
+    }
+}
 
 =back
 
 =cut
 
 __PACKAGE__
-
