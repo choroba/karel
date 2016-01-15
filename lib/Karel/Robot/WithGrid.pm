@@ -360,6 +360,23 @@ sub While {
     }
 }
 
+sub knows {
+    shift->knowledge->{+shift}
+}
+
+sub call {
+    my ($self, $command_name) = @_;
+    my $commands = $self->knows($command_name);
+    if ($commands) {
+        $self->_push_stack($commands);
+    } else {
+        croak "Unknown command $command_name.";
+    }
+    return FINISHED_DELAYED
+}
+
+
+
 =item $robot->stop
 
 Stops execution of the current program and clears the stack. Returns
@@ -390,12 +407,14 @@ sub step {
                    i   => 'If',
                    w   => 'While',
                    q   => 'stop',
+                   c   => 'call',
                    x => sub { FINISHED },
                  }->{ $command->[0] };
     croak "Unknown action " . $command->[0] unless $action;
 
     my $finished = $self->$action(@{ $command }[ 1 .. $#$command ]);
     # warn "$command->[0], $finished.\n";
+    # use Data::Dump; warn Data::Dump::dump($self->_stack);
 
     { FINISHED, sub {
           if (++$index > $#$commands) {
@@ -413,6 +432,12 @@ sub step {
       QUIT, sub { },
     }->{ $finished }->();
 }
+
+
+has knowledge => (
+                   is => 'rwp'
+                 );
+
 
 =back
 

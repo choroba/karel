@@ -2,4 +2,6 @@
 
 - parsing from text: English and Czech
 
+- refactor stack to a class (weak?)
+
 - GUI

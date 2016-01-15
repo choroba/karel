@@ -108,5 +108,10 @@ $r->_run([ ['r', 2, [ ['i', 'S', [ ['l'], ['q'] ] ] ] ],
            ['s'], ['s'] ]);
 is(count_steps($r), 3, 'quit');
 
+$r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
+$r->_set_knowledge({ right => [ [ 'r', 3, [ ['l'] ] ] ] });
+$r->_run([ [ 'c', 'right' ], ['l'] ]);
+$r->step while $r->is_running;
+is($r->direction, 'N', 'knowledge');
 
 done_testing();
