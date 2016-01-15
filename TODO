@@ -1,7 +1,11 @@
-- running learned commands: push the corresponding compiled struct
+* TODO [1/5]
 
-- parsing from text: English and Czech
+- [X] running learned commands: push the corresponding compiled struct
 
-- refactor stack to a class (weak?)
+- [ ] parsing from text: English and Czech
 
-- GUI
+- [ ] refactor stack to a class (weak?)
+
+- [ ] refactor knowledge to a class?
+
+- [ ] GUI
