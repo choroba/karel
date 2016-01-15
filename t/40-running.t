@@ -25,6 +25,7 @@ W    W
 WWWWWW
 __GRID__
 
+
 $r->_run([ ['s'], ['l'] ]);
 ok($r->_stack, 'stack');
 
@@ -38,6 +39,10 @@ is($r->direction, 'W', '2nd step');
 
 ok(! $r->_stack, 'stack empty');
 isnt(eval { $r->step; 1 }, 1, "can't step");
+
+$r->_run([ (['l']) x 4]);
+is(count_steps($r), 4, 'count steps');
+ok(! $r->_stack, 'stack empty');
 
 
 $r->_run([ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['s'] ]);
@@ -97,5 +102,11 @@ is($r->y, 1, 'walked');
 is($r->direction, 'S', 'turned');
 is($r->cover, 2, 'two marks');
 is($r->facing, 1, 'one mark');
+
+
+$r->_run([ ['r', 2, [ ['i', 'S', [ ['l'], ['q'] ] ] ] ],
+           ['s'], ['s'] ]);
+is(count_steps($r), 3, 'quit');
+
 
 done_testing();

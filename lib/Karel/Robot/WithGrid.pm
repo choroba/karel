@@ -30,6 +30,7 @@ use constant {
     CONTINUE         => 0,
     FINISHED         => 1,
     FINISHED_DELAYED => 2,
+    QUIT             => -1,
 };
 use namespace::clean;
 
@@ -353,6 +354,14 @@ sub While {
     }
 }
 
+=item $robot->stop
+
+Stops execution of the current program and clears the stack. Returns
+-1 (QUIT).
+
+=cut
+
+sub stop { shift->not_running; QUIT }
 
 =item $robot->step
 
@@ -374,11 +383,13 @@ sub step {
                    r   => 'repeat',
                    i   => 'If',
                    w   => 'While',
+                   q   => 'stop',
                    x => sub { FINISHED },
                  }->{ $command->[0] };
     croak "Unknown action " . $command->[0] unless $action;
 
     my $finished = $self->$action(@{ $command }[ 1 .. $#$command ]);
+    # warn "$command->[0], $finished.\n";
 
     { FINISHED, sub {
           if (++$index > $#$commands) {
@@ -392,6 +403,7 @@ sub step {
       FINISHED_DELAYED, sub {
           $self->_stack->[1][0][ $self->_stack->[1][1] ][0] = 'x';
       },
+      QUIT, sub { },
     }->{ $finished }->();
 }
 
