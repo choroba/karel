@@ -360,9 +360,23 @@ sub While {
     }
 }
 
+=item $commands = $robot->knows($command_name)
+
+If the robot knows the command, returns its definition; dies
+otherwise.
+
+=cut
+
 sub knows {
     shift->knowledge->{+shift}
 }
+
+=item $robot->call($command)
+
+Checks whether the robot knows the command, and if so, pushes its
+definition to the stack. Dies otherwise. Returns 2 (FINISH_DELAYED).
+
+=cut
 
 sub call {
     my ($self, $command_name) = @_;
@@ -374,8 +388,6 @@ sub call {
     }
     return FINISHED_DELAYED
 }
-
-
 
 =item $robot->stop
 
@@ -440,6 +452,19 @@ has knowledge => (
 
 
 =back
+
+=head1 RETURN VALUES
+
+There are three special return values corresponding to the stack handling:
+
+ 0 CONTINUE
+ 1 FINISHED
+ 2 FINISHED_DELAYED
+
+If a command returns C<CONTINUE>, the stack doesn't change. If it
+returns C<FINISHED>, the following command in the stack is executed.
+If it returns C<FINISHED_DELAYED>, new commands are put in the stack,
+but once they're finished, the command behaves as if finished, too.
 
 =cut
 
