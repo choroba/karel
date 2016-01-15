@@ -224,7 +224,13 @@ sub _stack_command {
     return $commands->[$index]
 }
 
-sub _stack_index { shift->_stacked->[1] }
+sub _stack_previous_commands {
+    shift->_stack->[1][0]
+}
+
+sub _stack_previous_index {
+    shift->_stack->[1][1]
+}
 
 sub _run {
     my ($self, $prog) = @_;
@@ -396,12 +402,13 @@ sub step {
               $self->_pop_stack;
 
           } else {
-              $self->_stack->[0][1] = $index;
+              $self->_stacked->[1] = $index;
           }
       },
       CONTINUE, sub { @_ = ($self); goto &step },
       FINISHED_DELAYED, sub {
-          $self->_stack->[1][0][ $self->_stack->[1][1] ][0] = 'x';
+          $self->_stack_previous_commands
+               ->[ $self->_stack_previous_index ][0] = 'x';
       },
       QUIT, sub { },
     }->{ $finished }->();

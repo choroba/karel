@@ -2,3 +2,4 @@ MANIFEST\.SKIP
 \.gitignore
 \.git
 ~$
+cover.db/

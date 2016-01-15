@@ -50,5 +50,11 @@ is($r->x, 3, 'x backup');
 is($r->y, 3, 'y backup');
 is($r->direction, 'S', 'direction backup');
 
+isnt(eval { $r->load_grid( string => << '__GRID__' ); 1}, 1, 'W inside');
+# karel 2 1
+WWWW
+W> WW
+WWWW
+__GRID__
 
 done_testing();

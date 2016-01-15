@@ -52,7 +52,7 @@ is(count_steps($r), 11, 'step count');
 is($r->direction, 'E', 'right=3xleft');
 is($r->x, 3, 'moved');
 
-$r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
+$r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1);
 $r->_run([ ['r', 9, [ ['d'] ] ] ]);
 
 is(count_steps($r), 10, 'steps=10');
