@@ -418,7 +418,7 @@ sub step {
     my ($commands, $index) = @{ $self->_stacked };
 
     my $command = $commands->[$index];
-    my $action = { s   => 'forward',
+    my $action = { f   => 'forward',
                    l   => 'left',
                    p   => 'pick_mark',
                    d   => 'drop_mark',
@@ -427,7 +427,7 @@ sub step {
                    w   => 'While',
                    q   => 'stop',
                    c   => 'call',
-                   x => sub { FINISHED },
+                   x   => sub { FINISHED },
                  }->{ $command->[0] };
     croak "Unknown action " . $command->[0] unless $action;
 

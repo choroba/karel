@@ -22,7 +22,7 @@ use namespace::clean;
     sub def      { [ $_[1], $_[2], $_[0] ] }
     sub concat   { $_[1] . $_[2] }
     sub left     { ['l'] }
-    sub forward  { ['s'] }
+    sub forward  { ['f'] }
     sub pick     { ['p'] }
     sub drop     { ['d'] }
     sub stop     { ['q'] }
@@ -38,7 +38,7 @@ use namespace::clean;
 
 my $dsl = << '__DSL__';
 
-:default ::= action => [name,values]
+:default ::= action => []
 lexeme default = latm => 1
 
 Def        ::= ('command') (sp) NewCommand (sp) Prog (sp) ('end')
@@ -97,9 +97,12 @@ sub _build__grammar {
     return $g
 }
 
-=item parse
+=item my ($name, $definition, $unknown) = $parser->parse($definition)
 
-  $robot->_learn($parser->parse($definition))
+Returns the new command, its definition, and a hash whose keys are the
+non-standard commands called from the definition. Usually followed by
+
+  $robot->learn($name, $definition);
 
 =cut
 

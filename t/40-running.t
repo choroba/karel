@@ -26,7 +26,7 @@ WWWWWW
 __GRID__
 
 
-$r->_run([ ['s'], ['l'] ]);
+$r->_run([ ['f'], ['l'] ]);
 ok($r->_stack, 'stack');
 
 $r->step;
@@ -45,7 +45,7 @@ is(count_steps($r), 4, 'count steps');
 ok(! $r->_stack, 'stack empty');
 
 
-$r->_run([ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['s'] ]);
+$r->_run([ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['f'] ]);
 
 is(count_steps($r), 11, 'step count');
 
@@ -74,7 +74,7 @@ W ^  W
 WWWWW
 __GRID__
 
-$r->_run([ ['w', '!w', [ ['s'] ] ],
+$r->_run([ ['w', '!w', [ ['f'] ] ],
            ['i', 'w', [ ['l'], ['l'] ] ],
            ['i', 'm', [ ['p'] ], [ ['d'] ] ] ] );
 $r->step while $r->is_running;
@@ -93,7 +93,7 @@ W^ W
 WWW
 __GRID__
 
-$r->_run([ ['r', 4, [ ['i', '!w', [ ['s'] ] ],
+$r->_run([ ['r', 4, [ ['i', '!w', [ ['f'] ] ],
                       ['d'] ] ],
            ['w', '!S', [ ['r', 3, [ ['l'] ] ] ] ] ]);
 
@@ -105,7 +105,7 @@ is($r->facing, 1, 'one mark');
 
 
 $r->_run([ ['r', 2, [ ['i', 'S', [ ['l'], ['q'] ] ] ] ],
-           ['s'], ['s'] ]);
+           ['f'], ['f'] ]);
 is(count_steps($r), 3, 'quit');
 
 $r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
