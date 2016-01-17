@@ -371,6 +371,13 @@ sub knows {
     shift->knowledge->{+shift}
 }
 
+sub _learn {
+    my ($self, $command, $prog) = @_;
+    my $knowledge = $self->knowledge;
+    $knowledge->{$command} = $prog;
+    $self->_set_knowledge($knowledge);
+}
+
 =item $robot->call($command)
 
 Checks whether the robot knows the command, and if so, pushes its
