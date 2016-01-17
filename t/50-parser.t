@@ -28,5 +28,34 @@ $r->step while $r->is_running;
 is($r->direction, 'N', 'repeat');
 
 
-done_testing();
+my @while = $p->parse(<< '__EOF__');
+command to-south
+    while not facing South
+        right
+    done
+end
+__EOF__
 
+is($while[2]{right}, 1, 'unknown propagated');
+$r->_learn(@while);
+$r->_run([ ['c', 'to-south'] ]);
+$r->step while $r->is_running;
+is($r->direction, 'S', 'while');
+
+
+my @to_wall = $p->parse(<< '__EOF__');
+command to-wall
+    while there isn't a wall
+        forward
+    done
+end
+__EOF__
+
+$r->_learn(@to_wall);
+$r->_run([ ['c', 'to-wall'] ]);
+$r->step while $r->is_running;
+is($r->y, 4, 'walked');
+is($r->facing, 'W', 'to-wall');
+
+
+done_testing();
