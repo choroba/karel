@@ -1,8 +1,14 @@
-* TODO [1/5]
+# -*- mode: org -*-
+
+* TODO [2/7]
 
 - [X] running learned commands: push the corresponding compiled struct
 
-- [ ] parsing from text: English and Czech
+- [X] parsing from text
+
+- [ ] report unknown commands from parsing
+
+- [ ] several parsers: English and Czech
 
 - [ ] refactor stack to a class (weak?)
 
