@@ -25,9 +25,10 @@ use namespace::clean;
     sub forward  { ['s'] }
     sub pick     { ['p'] }
     sub drop     { ['d'] }
-    sub stop     { ['s'] }
+    sub stop     { ['q'] }
     sub repeat   { ['r', $_[1], $_[2] ] }
     sub While    { ['w', $_[1], $_[2] ] }
+    sub If       { ['i', $_[1], $_[2], $_[3]] }
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
@@ -53,6 +54,9 @@ Command    ::= 'left'                                        action => left
              | ('repeat' sp) Num (sp Times sp) Prog (sp 'done')
                                                              action => repeat
              | ('while' sp) Condition (sp) Prog ('done')     action => While
+             | ('if' sp) Condition (sp) Prog ('done')        action => If
+             | ('if' sp) Condition (sp) Prog ('done' sp 'else' sp) Prog ('done')
+                                                             action => If
             || NewCommand                                    action => call
 Condition  ::= ('there' q 's' sp 'a' sp) Covering            action => ::first
              | ('there' sp 'isn' q 't' sp 'a' sp) Covering   action => negate

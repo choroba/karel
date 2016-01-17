@@ -58,4 +58,21 @@ is($r->y, 4, 'walked');
 is($r->facing, 'W', 'to-wall');
 
 
+my @to_north = $p->parse(<< '__EOF__');
+command to-north
+    repeat 3 x
+        if not facing North
+            right
+        done else
+            stop
+        done
+    done
+end
+__EOF__
+
+$r->_learn(@to_north);
+$r->_run([ ['c', 'to-north'] ]);
+$r->step while $r->is_running;
+is($r->direction, 'N', 'if');
+
 done_testing();
