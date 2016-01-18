@@ -99,6 +99,10 @@ has _dsl => ( is      => 'ro',
 
 has _grammar => ( is => 'lazy' );
 
+has action_class => ( is => 'ro',
+                      default => 'Karel::Parser::Actions',
+                    );
+
 sub _build__grammar {
     my ($self) = @_;
     my $g = 'Marpa::R2::Scanless::G'->new({ source => \$self->_dsl });
@@ -119,7 +123,7 @@ the parsed programs.
 sub parse {
     my ($self, $input) = @_;
     $input =~ s/^\s+|\s+$//g;
-    my $value = $self->_grammar->parse(\$input, 'Karel::Parser::Actions');
+    my $value = $self->_grammar->parse(\$input, $self->action_class);
     return @$$value
 }
 
