@@ -19,7 +19,7 @@ use namespace::clean;
 
 {   package Karel::Parser::Actions;
 
-    sub def      { [ $_[1], $_[2], $_[0] ] }
+    sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
     sub left     { ['l'] }
     sub forward  { ['f'] }
@@ -33,6 +33,13 @@ use namespace::clean;
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
 
+    sub defs {
+        my $unknown = shift;
+        my %h;
+        $h{ $_->[0] }= $_->[1] for @_;
+        return [ \%h, $unknown ]
+    }
+
 }
 
 
@@ -41,6 +48,7 @@ my $dsl = << '__DSL__';
 :default ::= action => []
 lexeme default = latm => 1
 
+Defs       ::= Def+  separator => sp                         action => defs
 Def        ::= ('command') (sp) NewCommand (sp) Prog (sp) ('end')
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
@@ -97,12 +105,14 @@ sub _build__grammar {
     return $g
 }
 
-=item my ($name, $definition, $unknown) = $parser->parse($definition)
+=item my ($new_commands, $unknown) = $parser->parse($definition)
 
-Returns the new command, its definition, and a hash whose keys are the
-non-standard commands called from the definition. Usually followed by
+C<$new_commands> is a hash that you can use to teach the robot:
 
-  $robot->learn($name, $definition);
+  $robot->_learn($_, $new_commands->{$_}) for keys %$new_commands;
+
+C<$unknwon> is a hash whose keys are all the commands needed to run
+the parsed programs.
 
 =cut
 
