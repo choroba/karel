@@ -17,7 +17,8 @@ use Moo;
 use Marpa::R2;
 use namespace::clean;
 
-{   package Karel::Parser::Actions;
+{   package # Hide from CPAN.
+        Karel::Parser::Actions;
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
@@ -115,8 +116,8 @@ C<$new_commands> is a hash that you can use to teach the robot:
 
   $robot->_learn($_, $new_commands->{$_}) for keys %$new_commands;
 
-C<$unknwon> is a hash whose keys are all the commands needed to run
-the parsed programs.
+C<$unknwon> is a hash whose keys are all the non-basic commands needed
+to run the parsed programs.
 
 =cut
 
