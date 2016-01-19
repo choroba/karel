@@ -63,7 +63,7 @@ command to-north
     repeat 3 x
         if not facing North
             right
-        done else
+        else
             stop
         done
     done
@@ -81,7 +81,7 @@ is($r->direction, 'N', 'if');
 
 my ($d9_ss, $unknwon) =  $p->parse( << '__EOF__');
 command safe-step
-    if there isn't a wall
+    if there's no wall
         forward
     done
 end

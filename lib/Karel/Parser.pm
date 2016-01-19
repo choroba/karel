@@ -64,13 +64,16 @@ Command    ::= 'left'                                        action => left
                                                              action => repeat
              | ('while' sp) Condition (sp) Prog ('done')     action => While
              | ('if' sp) Condition (sp) Prog ('done')        action => If
-             | ('if' sp) Condition (sp) Prog ('done' sp 'else' sp) Prog ('done')
+             | ('if' sp) Condition (sp) Prog ('else' sp) Prog ('done')
                                                              action => If
-            || NewCommand                                    action => call
+             | NewCommand                                    action => call
 Condition  ::= ('there' q 's' sp 'a' sp) Covering            action => ::first
-             | ('there' sp 'isn' q 't' sp 'a' sp) Covering   action => negate
+             | (Negation sp) Covering                        action => negate
              | ('facing' sp) Wind                            action => ::first
              | ('not' sp 'facing' sp) Wind                   action => negate
+Negation   ::= ('there' sp 'isn' q 't' sp 'a')
+             | ('there' sp 'is' sp 'no')
+             | ('there' q 's' sp 'no')
 Covering   ::= 'mark'                                        action => first_ch
              | 'wall'                                        action => first_ch
 Wind       ::= 'North'                                       action => first_ch
