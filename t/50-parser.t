@@ -91,7 +91,10 @@ command drop9
             drop-mark
         done
     done
-    drop-mark
+    pick-mark
+    repeat 2 x
+        drop-mark
+    done
 end
 __EOF__
 
