@@ -1,12 +1,18 @@
 # -*- mode: org -*-
 
-* TODO [2/7]
+* TODO [4/10]
 
 - [X] running learned commands: push the corresponding compiled struct
 
 - [X] parsing from text
 
-- [ ] report unknown commands from parsing
+- [X] repeat 0 x - fails to parse
+
+- [ ] parser should report core commands, so we can deparse
+
+- [ ] add comments
+
+- [X] report unknown commands from parsing
 
 - [ ] several parsers: English and Czech
 
