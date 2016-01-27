@@ -20,6 +20,7 @@ use strict;
 use Data::Dumper;
 
 use Karel::Grid;
+use Karel::Parser;
 use Carp;
 use Module::Load qw{ load };
 use Moo;
@@ -163,6 +164,51 @@ sub load_grid {
         croak $@
     };
 }
+
+has parser => ( is      => 'ro',
+                default => sub { 'Karel::Parser'->new },
+);
+
+
+=item $commands = $robot->knows($command_name)
+
+If the robot knows the command, returns its definition; dies
+otherwise.
+
+=cut
+
+sub knows {
+    my ($self, $command) = @_;
+    $self->knowledge->{$command}
+}
+
+sub _learn {
+    my ($self, $command, $prog) = @_;
+    my $knowledge = $self->knowledge;
+    $knowledge->{$command} = $prog;
+    $self->_set_knowledge($knowledge);
+}
+
+=item $robot->learn($program)
+
+Teaches the robot new commands. Dies if the commands contain unknown
+commands.
+
+=cut
+
+sub learn {
+    my ($self, $prog) = @_;
+    my ($commands, $unknown) = $self->parser->parse($prog);
+    $self->_learn($_, $commands->{$_}) for keys %$commands;
+    for my $command (keys %$unknown) {
+        die "Dont' know $command" unless $self->knows($command);
+    }
+}
+
+has knowledge => (
+                   is => 'rwp'
+                 );
+
 
 
 =back

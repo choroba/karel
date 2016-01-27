@@ -237,6 +237,22 @@ sub _run {
     $self->_set__stack([ [$prog, 0] ]);
 }
 
+=item $robot->run($command_name)
+
+Run the given command.
+
+=cut
+
+sub run {
+    my ($self, $command) = @_;
+    my $core = $self->parser->core;
+    if (exists $core->{$command}) {
+        $self->_run([[ $core->{$command} ]]);
+    } else {
+        $self->_run([['c', $command]]);
+    }
+}
+
 =item $robot->forward
 
 Moves the robot one cell forward in its direction.
@@ -360,24 +376,6 @@ sub While {
     }
 }
 
-=item $commands = $robot->knows($command_name)
-
-If the robot knows the command, returns its definition; dies
-otherwise.
-
-=cut
-
-sub knows {
-    shift->knowledge->{+shift}
-}
-
-sub _learn {
-    my ($self, $command, $prog) = @_;
-    my $knowledge = $self->knowledge;
-    $knowledge->{$command} = $prog;
-    $self->_set_knowledge($knowledge);
-}
-
 =item $robot->call($command)
 
 Checks whether the robot knows the command, and if so, pushes its
@@ -451,12 +449,6 @@ sub step {
       QUIT, sub { },
     }->{ $finished }->();
 }
-
-
-has knowledge => (
-                   is => 'rwp'
-                 );
-
 
 =back
 

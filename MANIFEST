@@ -16,6 +16,7 @@ t/20-robot.t
 t/30-loading.t
 t/40-running.t
 t/50-parser.t
+t/60-runparse.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

@@ -131,6 +131,26 @@ sub parse {
     return @$$value
 }
 
+=item my $core_commands = $parser->core
+
+Returns a hash reference describing how the commands map to the basic
+instructions, e.g.:
+
+  { left        => 'l',
+    forward     => 'f',
+    'drop-mark' => 'd',
+    'pick-mark' => 'p',
+  }
+
+=cut
+
+sub core {
+    return { left        => 'l',
+             forward     => 'f',
+             'drop-mark' => 'd',
+             'pick-mark' => 'p',
+           }
+}
 
 =back
 
