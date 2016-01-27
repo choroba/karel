@@ -49,6 +49,9 @@ my $dsl = << '__DSL__';
 :default ::= action => []
 lexeme default = latm => 1
 
+START      ::= Defs                                          action => ::first
+             | ('run' sp) Command                            action => [value]
+
 Defs       ::= Def+  separator => sp                         action => defs
 Def        ::= ('command') (sp) NewCommand (sp) Prog (sp) ('end')
                                                              action => def
@@ -128,29 +131,9 @@ sub parse {
     my ($self, $input) = @_;
     $input =~ s/^\s+|\s+$//g;
     my $value = $self->_grammar->parse(\$input, $self->action_class);
-    return @$$value
+    return $input =~ /^run / ? $value : @$$value
 }
 
-=item my $core_commands = $parser->core
-
-Returns a hash reference describing how the commands map to the basic
-instructions, e.g.:
-
-  { left        => 'l',
-    forward     => 'f',
-    'drop-mark' => 'd',
-    'pick-mark' => 'p',
-  }
-
-=cut
-
-sub core {
-    return { left        => 'l',
-             forward     => 'f',
-             'drop-mark' => 'd',
-             'pick-mark' => 'p',
-           }
-}
 
 =back
 

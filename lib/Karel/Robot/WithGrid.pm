@@ -245,12 +245,8 @@ Run the given command.
 
 sub run {
     my ($self, $command) = @_;
-    my $core = $self->parser->core;
-    if (exists $core->{$command}) {
-        $self->_run([[ $core->{$command} ]]);
-    } else {
-        $self->_run([['c', $command]]);
-    }
+    my $parsed = $self->parser->parse("run $command");
+    $self->_run($$parsed);
 }
 
 =item $robot->forward

@@ -106,6 +106,11 @@ $r->_run([ ['c', 'drop9' ] ]);
 $r->step while $r->is_running;
 is($r->cover, 9, 'all dropped');
 
+$r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
+$r->run('left');
+$r->step while $r->is_running;
+is($r->direction, 'W', 'run core');
+
 done_testing();
 
 
