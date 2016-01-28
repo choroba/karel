@@ -191,8 +191,8 @@ sub _learn {
 
 =item $robot->learn($program)
 
-Teaches the robot new commands. Dies if the commands contain unknown
-commands.
+Teaches the robot new commands. Dies if the definitions contain
+unknown commands.
 
 =cut
 

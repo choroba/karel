@@ -18,9 +18,19 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        #'ABC'              => 1.6,
-        #'Foo::Bar::Module' => 5.0401,
+        'Syntax::Construct' => 0,
+        Moo                 => 0,
+        'namespace::clean'  => 0,
+        Clone               => 0,
+        constant            => 0,
+        'List::Util'        => 0,
+        'Marpa::R2'         => 0,
+        'Module::Load'      => 0,
+        Carp                => 0,
+        Exporter            => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+    macro => { TARFLAGS => '--format=ustar -cvf' },
     clean => { FILES => 'Karel-*' },
 );
+
