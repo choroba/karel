@@ -33,7 +33,7 @@ use namespace::clean;
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
-
+    sub skip     { ['x'] }
     sub defs {
         my $unknown = shift;
         my %h;
@@ -69,6 +69,7 @@ Command    ::= 'left'                                        action => left
              | ('if' sp) Condition (sp) Prog ('done')        action => If
              | ('if' sp) Condition (sp) Prog ('else' sp) Prog ('done')
                                                              action => If
+             | (Comment)                                     action => skip
              | NewCommand                                    action => call
 Condition  ::= ('there' q 's' sp 'a' sp) Covering            action => ::first
              | (Negation sp) Covering                        action => negate
@@ -87,7 +88,7 @@ Num        ::= non_zero                                      action => ::first
              | non_zero digits                               action => concat
 Times      ::= 'times'
              | 'x'
-
+Comment    ::= ('#' non_lf lf)
 
 alpha      ~ [a-z]
 valid_name ~ [-a-z_0-9]+
@@ -95,6 +96,9 @@ non_zero   ~ [1-9]
 digits     ~ [0-9]+
 sp         ~ [\s]+
 q          ~ [']
+non_lf     ~ [^\n]*
+lf         ~ [\n]
+
 __DSL__
 
 

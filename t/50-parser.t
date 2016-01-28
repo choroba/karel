@@ -111,6 +111,24 @@ $r->run('left');
 $r->step while $r->is_running;
 is($r->direction, 'W', 'run core');
 
+
+my ($with_comment) = $p->parse( << '__EOF__');
+command run
+# testing comment 'blah'
+    while there's no wall
+        forward
+    done
+end
+__EOF__
+
+$r->_learn(%$with_comment);
+$r->_run([['c', 'run']]);
+while ($r->is_running) {
+    # use Data::Dumper;
+    # warn Dumper $r->_stack;
+    $r->step;
+}
+
 done_testing();
 
 
