@@ -65,7 +65,10 @@ has 'grid' => ( is  => 'rwp',
 
 =item $robot->set_grid($grid, $x, $y, $direction);
 
-???
+Initialize the grid. Grid must be an object of the C<Karel::Grid>
+type, C<$x> and C<$y> are coordinates of the robot, C<$direction> is
+one of C<N E S W> (defaults to C<N>). Dies if the robot's place is
+occupied by a wall.
 
 =cut
 
