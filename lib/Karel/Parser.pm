@@ -19,6 +19,7 @@ use namespace::clean;
 
 {   package # Hide from CPAN.
         Karel::Parser::Actions;
+use Data::Dumper;#???
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
@@ -33,7 +34,8 @@ use namespace::clean;
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
-    sub skip     { ['x'] }
+    sub list     { [ grep defined, @_[ 1 .. $#_ ] ] }
+    sub skip     { }
     sub defs {
         my $unknown = shift;
         my %h;
@@ -57,7 +59,7 @@ Def        ::= ('command') (sp) NewCommand (sp) Prog (sp) ('end')
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
-Commands   ::= Command+  separator => sp                     action => [values]
+Commands   ::= Command+  separator => sp                     action => list
 Command    ::= 'left'                                        action => left
              | 'forward'                                     action => forward
              | 'drop-mark'                                   action => drop

@@ -123,11 +123,7 @@ __EOF__
 
 $r->_learn(%$with_comment);
 $r->_run([['c', 'run']]);
-while ($r->is_running) {
-    # use Data::Dumper;
-    # warn Dumper $r->_stack;
-    $r->step;
-}
+$r->step while $r->is_running;
 
 done_testing();
 
