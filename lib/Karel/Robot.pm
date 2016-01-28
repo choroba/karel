@@ -17,8 +17,6 @@ Basic robot class. It represents a robot wihtout a grid.
 use warnings;
 use strict;
 
-use Data::Dumper;
-
 use Karel::Grid;
 use Karel::Parser;
 use Carp;

@@ -19,7 +19,6 @@ use namespace::clean;
 
 {   package # Hide from CPAN.
         Karel::Parser::Actions;
-use Data::Dumper;#???
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }

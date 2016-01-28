@@ -24,7 +24,6 @@ use warnings;
 use strict;
 
 use Carp;
-use Data::Dumper;
 use Karel::Util qw{ positive_int m_to_n };
 use List::Util qw{ any none };
 use Moo;
