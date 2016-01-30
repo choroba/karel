@@ -1,6 +1,6 @@
 # -*- mode: org -*-
 
-* TODO [4/11]
+* TODO [5/11]
 
 - [X] running learned commands: push the corresponding compiled struct
 
@@ -12,7 +12,7 @@
 
 - [ ] parser should report core commands, so we can deparse
 
-- [ ] change comments so they can occur wherever whitespace can
+- [X] change comments so they can occur wherever whitespace can
 
 - [X] report unknown commands from parsing
 

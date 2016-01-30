@@ -34,7 +34,6 @@ use namespace::clean;
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
     sub list     { [ grep defined, @_[ 1 .. $#_ ] ] }
-    sub skip     { }
     sub defs {
         my $unknown = shift;
         my %h;
@@ -51,34 +50,33 @@ my $dsl = << '__DSL__';
 lexeme default = latm => 1
 
 START      ::= Defs                                          action => ::first
-             | ('run' sp) Command                            action => [value]
+             | ('run' SC) Command                            action => [value]
 
-Defs       ::= Def+  separator => sp                         action => defs
-Def        ::= ('command') (sp) NewCommand (sp) Prog (sp) ('end')
+Defs       ::= Def+  separator => SC                         action => defs
+Def        ::= ('command') (SC) NewCommand (SC) Prog (SC) ('end')
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
-Commands   ::= Command+  separator => sp                     action => list
+Commands   ::= Command+  separator => SC                     action => list
 Command    ::= 'left'                                        action => left
              | 'forward'                                     action => forward
              | 'drop-mark'                                   action => drop
              | 'pick-mark'                                   action => pick
              | 'stop'                                        action => stop
-             | ('repeat' sp) Num (sp Times sp) Prog (sp 'done')
+             | ('repeat' SC) Num (SC Times SC) Prog (SC 'done')
                                                              action => repeat
-             | ('while' sp) Condition (sp) Prog ('done')     action => While
-             | ('if' sp) Condition (sp) Prog ('done')        action => If
-             | ('if' sp) Condition (sp) Prog ('else' sp) Prog ('done')
+             | ('while' SC) Condition (SC) Prog ('done')     action => While
+             | ('if' SC) Condition (SC) Prog ('done')        action => If
+             | ('if' SC) Condition (SC) Prog ('else' SC) Prog ('done')
                                                              action => If
-             | (Comment)                                     action => skip
              | NewCommand                                    action => call
-Condition  ::= ('there' q 's' sp 'a' sp) Covering            action => ::first
-             | (Negation sp) Covering                        action => negate
-             | ('facing' sp) Wind                            action => ::first
-             | ('not' sp 'facing' sp) Wind                   action => negate
-Negation   ::= ('there' sp 'isn' q 't' sp 'a')
-             | ('there' sp 'is' sp 'no')
-             | ('there' q 's' sp 'no')
+Condition  ::= ('there' q 's' SC 'a' SC) Covering            action => ::first
+             | (Negation SC) Covering                        action => negate
+             | ('facing' SC) Wind                            action => ::first
+             | ('not' SC 'facing' SC) Wind                   action => negate
+Negation   ::= ('there' SC 'isn' q 't' SC 'a')
+             | ('there' SC 'is' SC 'no')
+             | ('there' q 's' SC 'no')
 Covering   ::= 'mark'                                        action => first_ch
              | 'wall'                                        action => first_ch
 Wind       ::= 'North'                                       action => first_ch
@@ -90,12 +88,16 @@ Num        ::= non_zero                                      action => ::first
 Times      ::= 'times'
              | 'x'
 Comment    ::= ('#' non_lf lf)
+SC         ::= SpComm+
+SpComm     ::= Comment
+            || space
+
 
 alpha      ~ [a-z]
 valid_name ~ [-a-z_0-9]+
 non_zero   ~ [1-9]
 digits     ~ [0-9]+
-sp         ~ [\s]+
+space      ~ [\s]+
 q          ~ [']
 non_lf     ~ [^\n]*
 lf         ~ [\n]

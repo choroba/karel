@@ -115,7 +115,8 @@ is($r->direction, 'W', 'run core');
 my ($with_comment) = $p->parse( << '__EOF__');
 command run
 # testing comment 'blah'
-    while there's no wall
+    while there's no # wait for it!
+                     wall
         forward
     done
 end
