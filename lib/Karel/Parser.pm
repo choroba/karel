@@ -132,6 +132,11 @@ C<$new_commands> is a hash that you can use to teach the robot:
 C<$unknwon> is a hash whose keys are all the non-basic commands needed
 to run the parsed programs.
 
+When the input starts with C<run >, it should contain just one
+command. The robot's C<run> function uses it to parse commands you
+run, as simple C<[[ 'c', $command ]]> doesn't work for core commands
+(C<left>, C<forward>, etc.).
+
 =cut
 
 sub parse {
