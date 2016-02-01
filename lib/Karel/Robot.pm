@@ -108,8 +108,8 @@ sub load_grid {
 
     my $header = <$IN>;
     croak 'Invalid format'
-        unless $header =~ /^\# \s* karel \s+ ([0-9]+) \s+ ([0-9]+)/x;
-    my ($x, $y) = ($1, $2);
+        unless $header =~ /^\# \s* karel \s+ (v[0-9]+\.[0-9]{2}) \s+ ([0-9]+) \s+ ([0-9]+)/x;
+    my ($version, $x, $y) = ($1, $2, $3);
     my $grid = 'Karel::Grid'->new( x => $x,
                                    y => $y,
                                  );

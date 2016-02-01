@@ -17,7 +17,7 @@ sub count_steps {
 my $r = 'Karel::Robot'->new;
 
 $r->load_grid( string => << '__GRID__');
-# karel 4 3
+# karel v0.01 4 3
 WWWWWW
 W    W
 W ^   W
@@ -66,7 +66,7 @@ is(count_steps($r), 13, 'steps=13');
 is($r->cover, ' ', 'picked all');
 
 $r->load_grid( string => << '__GRID__');
-# karel 3 3
+# karel v0.01 3 3
 WWWWW
 W   W
 W   W
@@ -84,7 +84,7 @@ is($r->cover, '1', 'dropped');
 
 
 $r->load_grid( string => << '__GRID__');
-# karel 1 4
+# karel v0.01 1 4
 WWW
 W W
 W W

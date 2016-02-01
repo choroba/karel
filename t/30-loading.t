@@ -11,7 +11,7 @@ isnt(eval { $r->load_grid( url => 'http://' ); 1 }, 1, 'invalid type');
 
 
 my $G1 = << '__GRID__';
-# karel 2 2
+# karel v0.01 2 2
 WWWW
 W> 1W
 W9wW
@@ -27,7 +27,7 @@ is($r->direction, 'E', 'direction');
 
 
 my $G2 = << '__GRID__';
-# karel 4 3
+# karel v0.01 4 3
 WWWWWW
 W1234W
 W5678W
@@ -48,7 +48,7 @@ is($r->y, 3, 'y backup');
 is($r->direction, 'S', 'direction backup');
 
 isnt(eval { $r->load_grid( string => << '__GRID__' ); 1}, 1, 'W inside');
-# karel 2 1
+# karel v0.01 2 1
 WWWW
 W> WW
 WWWW
