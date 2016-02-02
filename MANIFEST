@@ -3,6 +3,7 @@ lib/Karel.pm
 lib/Karel/Util.pm
 lib/Karel/Grid.pm
 lib/Karel/Parser.pm
+lib/Karel/Parser/Czech.pm
 lib/Karel/Robot.pm
 lib/Karel/Robot/WithGrid.pm
 Makefile.PL
@@ -18,6 +19,7 @@ t/30-loading.t
 t/40-running.t
 t/50-parser.t
 t/60-learn.t
+t/70-czech.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
