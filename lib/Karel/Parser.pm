@@ -20,6 +20,10 @@ use namespace::clean;
 {   package # Hide from CPAN.
         Karel::Parser::Actions;
 
+    use parent 'Exporter';
+    our @EXPORT_OK = qw{ def concat left forward pick drop stop repeat
+                         While If first_ch negate call list defs };
+
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
     sub left     { ['l'] }
@@ -142,7 +146,13 @@ run, as simple C<[[ 'c', $command ]]> doesn't work for core commands
 sub parse {
     my ($self, $input) = @_;
     $input =~ s/^\s+|\s+$//g;
-    my $value = $self->_grammar->parse(\$input, $self->action_class);
+    my $recce = 'Marpa::R2::Scanless::R'
+                ->new({ grammar           => $self->_grammar,
+                        semantics_package => $self->action_class,
+                      });
+    $recce->read(\$input);
+    # warn $recce->show_progress(1);
+    my $value = $recce->value;
     return $input =~ /^run / ? $value : @$$value
 }
 
