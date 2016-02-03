@@ -29,7 +29,13 @@ is($robot->direction, 'S', 'composed cz');
 
 $robot->learn('příkaz na-sever dokud není sever vpravo na-sever hotovo konec');
 $robot->run('na-sever');
-$robot->step while $robot->is_running;
+my $directions;
+while ($robot->is_running) {
+    $robot->step;
+    $directions .= $robot->direction;
+}
+$directions =~ tr///cs;
+is($directions, 'SENWSEN', 'one and half circles');
 is($robot->direction, 'N', 'cz while not');
 
 done_testing();
