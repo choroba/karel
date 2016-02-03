@@ -196,27 +196,6 @@ sub facing {
     $self->grid->at($self->facing_coords)
 }
 
-has ui => ( is        => 'rwp',
-            predicate => 1);
-
-=item $robot->set_ui($class, { method => sub {... }, ... })
-
-TODO: Use a Role instead!
-
-Inject some methods that the UI needs to handle the robot.
-
-=cut
-
-sub set_ui {
-    my ($self, $ui_class, $methods) = @_;
-    croak "UI alredy set" if $self->has_ui;
-    $self->_set_ui($ui_class);
-    for my $method (keys %$methods) {
-        no strict 'refs';
-        *{__PACKAGE__ . '::' . $method} = $methods->{$method};
-    }
-}
-
 
 has _stack => ( is        => 'rwp',
                 predicate => 'is_running',

@@ -7,6 +7,7 @@ lib/Karel/Parser/Czech.pm
 lib/Karel/Robot.pm
 lib/Karel/Robot/WithGrid.pm
 lib/Karel/UI/Text.pm
+lib/Karel/UI/Text/Robot.pm
 Makefile.PL
 MANIFEST			This list of files
 README
