@@ -46,7 +46,7 @@ sub menu {
     my $reply = ' ';
     until ($reply =~ /^[0-9]*$/ && $reply && $reply <= @$choices) {
         my $i = 1;
-        say $i++, ") $_->[0]" for @$choices;
+        print $i++, ") $_->[0]" . (@$choices < 20 ? "\n" : '  ') for @$choices;
         say "Default: $default" if defined $default;
         chomp( $reply = <> );
         $reply = $default if q() eq $reply && $default;
@@ -109,6 +109,7 @@ sub load_commands {
 
 sub load_commands_from_path {
     my ($robot, $path) = @_;
+    $path = $ENV{PWD} unless $path;
     chdir $path;
     my @files = glob ".* *";
     $robot->menu(undef, [ map {
