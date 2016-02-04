@@ -31,10 +31,10 @@ The constructor. It takes no parameters.
 
 =item $robot->set_grid($grid, $x, $y, $direction)
 
-Upgrades the robot to the C<Karel::Robot::WithGrid> instance based on
-$robot. C<$grid> must be a C<Karel::Grid> instance, $x and $y denote
-the position of the robot in the grid. Optional $direction is one of
-C<N E S W> (for North, East, South, and West), defaults to C<N>.
+Applies the L<Karel::Robot::WithGrid> role to the $robot. C<$grid>
+must be a C<Karel::Grid> instance, $x and $y denote the position of
+the robot in the grid. Optional $direction is one of C<N E S W> (for
+North, East, South, and West), defaults to C<N>.
 
 =cut
 

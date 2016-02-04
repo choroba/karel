@@ -1,5 +1,4 @@
-package # hide from CPAN.
-        Karel::UI::Text::Robot;
+package Karel::UI::Text::Robot;
 
 =head1 NAME
 
@@ -7,7 +6,8 @@ Robot
 
 =head1 DESCRIPTION
 
-TODO: add desc
+The role used by L<Karel::UI::Text> to introduce methods to interact
+with the user and show the grid.
 
 =head1 METHODS
 
@@ -34,10 +34,10 @@ sub cls {
 }
 
 
-=item menu($robot, $default, [ [ $command => \&callback ], ... ])
+=item $robot->menu($default, [ [ $command => \&callback ], ... ])
 
-Display a menu listing commands, return the callback associated with
-the selected item.
+Display a menu listing commands, run the callback associated with the
+selected item.
 
 =cut
 
@@ -55,7 +55,7 @@ sub menu {
     $robot->$action()
 }
 
-=item show($robot)
+=item $robot->show
 
 Draw the grid with the robot.
 
@@ -81,6 +81,13 @@ sub show {
     say '[', $robot->cover, ']';
 }
 
+=item $robot->load_grid_from_path($path)
+
+List the files in the given path, load grid from the selected one. If
+a directory is selected, show its contents.
+
+=cut
+
 sub load_grid_from_path {
     my ($robot, $path) = @_;
     $path = $ENV{PWD} unless $path;
@@ -98,6 +105,12 @@ sub load_grid_from_path {
                               } @files ]);
 }
 
+=item $robot->load_commands($file)
+
+Load commands from the given file.
+
+=cut
+
 sub load_commands {
     my ($robot, $file) = @_;
     my $contents = do {
@@ -106,6 +119,13 @@ sub load_commands {
         <$IN> };
     $robot->learn($contents);
 }
+
+=item $robot->load_commands_from_path($path)
+
+List the files in the given path. Load commands from the selected
+one. If a directory is selected, show its contents.
+
+=cut
 
 sub load_commands_from_path {
     my ($robot, $path) = @_;
