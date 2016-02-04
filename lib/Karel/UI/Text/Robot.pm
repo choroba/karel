@@ -19,6 +19,8 @@ use warnings;
 use strict;
 use feature qw{ say };
 
+use Cwd;
+
 use Moo::Role;
 requires qw{ grid x y direction cover run step is_running knowledge };
 
@@ -46,7 +48,22 @@ sub menu {
     my $reply = ' ';
     until ($reply =~ /^[0-9]*$/ && $reply && $reply <= @$choices) {
         my $i = 1;
-        print $i++, ") $_->[0]" . (@$choices < 20 ? "\n" : '  ') for @$choices;
+        my $line_length = @$choices > 20 ? 0 : undef;
+        for my $choice (@$choices) {
+            if (defined $line_length) {
+                my $item = $i++ . ") $choice->[0] ";
+                if ($line_length + length $item > 80) {
+                    print "\n";
+                    $line_length = 0;
+                }
+                print $item;
+                $line_length += length $item;
+
+            } else {
+                say $i++, ") $choice->[0]";
+            }
+        }
+        print "\n" if defined $line_length;
         say "Default: $default" if defined $default;
         chomp( $reply = <> );
         $reply = $default if q() eq $reply && $default;
@@ -90,9 +107,9 @@ a directory is selected, show its contents.
 
 sub load_grid_from_path {
     my ($robot, $path) = @_;
-    $path = $ENV{PWD} unless $path;
+    $path = getcwd() unless $path;
     chdir $path;
-    my @files = glob ".* *";
+    my @files = grep '.' ne $_, glob ".* *";
     $robot->menu(undef, [ map {
                               my $f = $_;
                               [ $f => sub { my $r = shift;
@@ -129,9 +146,9 @@ one. If a directory is selected, show its contents.
 
 sub load_commands_from_path {
     my ($robot, $path) = @_;
-    $path = $ENV{PWD} unless $path;
+    $path = getcwd() unless $path;
     chdir $path;
-    my @files = glob ".* *";
+    my @files = grep '.' ne $_, glob ".* *";
     $robot->menu(undef, [ map {
                               my $f = $_;
                               [ $f => sub { my $r = shift;

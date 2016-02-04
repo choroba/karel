@@ -18,6 +18,7 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
+        Cwd                 => 0,
         'Syntax::Construct' => 0,
         Moo                 => 0,
         'namespace::clean'  => 0,

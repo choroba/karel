@@ -7,10 +7,12 @@ use warnings;
 use Karel::Robot;
 use Karel::Grid;
 
+=encoding utf-8
 
 =head1 NAME
 
-Karel - The great new Karel!
+Karel the Robot - Learn programming with a robot that understands few
+simple commands.
 
 =head1 VERSION
 
@@ -23,30 +25,10 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+This is still work in progress. The simplest text UI is present, you
+can run it with
 
-Perhaps a little code snippet.
-
-    use Karel;
-
-    my $foo = Karel->new();
-    ...
-
-=head1 METHODS
-
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
+    perl -MKarel::UI::Text -we 'Karel::UI::Text::main()'
 
 =head1 AUTHOR
 
@@ -54,12 +36,8 @@ E. Choroba, C<< <choroba at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-karel at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Karel>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to the GitHub repository:
+L<https://github.com/choroba/karel/issues>.
 
 =head1 SUPPORT
 
@@ -72,9 +50,9 @@ You can also look for information at:
 
 =over 4
 
-=item * RT: CPAN's request tracker (report bugs here)
+=item * Meta CPAN
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Karel>
+L<http://metacpan.org/pod/Karel>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
@@ -93,10 +71,11 @@ L<http://search.cpan.org/dist/Karel/>
 
 =head1 ACKNOWLEDGEMENTS
 
+Karel Čapek, the author of R.U.R. (1920).
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2015 E. Choroba.
+Copyright 2015 - 2016 E. Choroba.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
