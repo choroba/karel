@@ -101,7 +101,7 @@ sub load_grid_from_path {
 sub load_commands {
     my ($robot, $file) = @_;
     my $contents = do {
-        open my $IN, '<', $file or die $!;
+        open my $IN, '<', $file or croak $!;
         local $/;
         <$IN> };
     $robot->learn($contents);

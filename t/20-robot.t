@@ -15,7 +15,7 @@ isnt(eval { $k->grid; 1 }, 1, 'no grid');
 my $m = 'Karel::Grid'->new(x => 1, y => 2);
 $k->set_grid($m, 1, 1);
 is($k->grid, $m, 'grid');
-is(ref $k, 'Karel::Robot::WithGrid');
+ok($k->does('Karel::Robot::WithGrid'), 'role');
 is($k->direction, 'N', 'default direction');
 
 $k->left;

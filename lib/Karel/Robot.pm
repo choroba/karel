@@ -42,9 +42,9 @@ sub set_grid {
     my ($self, $grid, $x, $y, $direction) = @_;
     $direction //= 'N';
     my $with_grid_class = $self->class_with_grid;
-    if (ref $self ne $with_grid_class) {
+    if (! $self->does($with_grid_class)) {
         load($with_grid_class);
-        bless $_[0], $with_grid_class;
+        'Moo::Role'->apply_roles_to_object($self, $with_grid_class);
         $self->set_grid($grid, $x, $y, $direction);
     }
 }
@@ -199,7 +199,7 @@ sub learn {
     my ($commands, $unknown) = $self->parser->parse($prog);
     $self->_learn($_, $commands->{$_}) for keys %$commands;
     for my $command (keys %$unknown) {
-        die "Dont' know $command" unless $self->knows($command);
+        croak "Dont' know $command" unless $self->knows($command);
     }
 }
 

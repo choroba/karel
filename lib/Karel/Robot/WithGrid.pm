@@ -25,14 +25,14 @@ use Karel::Util qw{ positive_int };
 use Carp;
 use List::Util qw{ first };
 use Clone qw{ clone };
-use Moo;
 use constant {
     CONTINUE         => 0,
     FINISHED         => 1,
     FINISHED_DELAYED => 2,
     QUIT             => -1,
 };
-use namespace::clean;
+use Moo::Role;
+requires qw{ set_grid knows };
 
 =item $robot->x, $robot->y
 
@@ -72,14 +72,14 @@ occupied by a wall.
 
 =cut
 
-sub set_grid {
-    my ($self, $grid, $x, $y, $direction) = @_;
+around set_grid => sub {
+    my (undef, $self, $grid, $x, $y, $direction) = @_;
     $self->_set_grid($grid);
     $self->_set_x($x);
     $self->_set_y($y);
     $self->_set_direction($direction) if $direction;
     croak "Wall at starting position" if $self->cover =~ /w/i;
-}
+};
 
 =item $robot->drop_mark
 
