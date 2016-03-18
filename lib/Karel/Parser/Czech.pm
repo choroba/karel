@@ -70,11 +70,11 @@ Command    ::= 'vlevo'                                       action => left
              | 'polož'                                       action => drop
              | 'zvedni'                                      action => pick
              | 'stůj'                                        action => stop
-             | ('opakuj' SC) Num (SC Times SC) Prog (SC 'hotovo')
+             | ('opakuj' SC) Num (SC Times SC) Prog (SC hotovo)
                                                              action => repeat
-             | ('dokud' SC) Condition (SC) Prog ('hotovo')   action => While
-             | ('když' SC) Condition (SC) Prog ('hotovo')    action => If
-             | ('když' SC) Condition (SC) Prog ('jinak' SC) Prog ('hotovo')
+             | ('dokud' SC) Condition (SC) Prog (hotovo)     action => While
+             | ('když' SC) Condition (SC) Prog (hotovo)      action => If
+             | ('když' SC) Condition (SC) Prog ('jinak' SC) Prog (hotovo)
                                                              action => If
              | NewCommand                                    action => call
 Condition  ::= ('je' SC) Object                              action => ::first
@@ -89,11 +89,13 @@ Num        ::= non_zero                                      action => ::first
              | non_zero digits                               action => concat
 Times      ::= 'krát'
              | 'x'
-Comment    ::= ('#' non_lf lf)
+Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
 SpComm     ::= Comment
             || space
 
+hotovo     ~ 'hotovo'
+octothorpe ~ '#'
 alpha      ~ [[:lower:]]
 valid_name ~ [-[:lower:]_0-9]+
 non_zero   ~ [1-9]

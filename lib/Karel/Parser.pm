@@ -67,11 +67,11 @@ Command    ::= 'left'                                        action => left
              | 'drop-mark'                                   action => drop
              | 'pick-mark'                                   action => pick
              | 'stop'                                        action => stop
-             | ('repeat' SC) Num (SC Times SC) Prog (SC 'done')
+             | ('repeat' SC) Num (SC Times SC) Prog (SC done)
                                                              action => repeat
-             | ('while' SC) Condition (SC) Prog ('done')     action => While
-             | ('if' SC) Condition (SC) Prog ('done')        action => If
-             | ('if' SC) Condition (SC) Prog ('else' SC) Prog ('done')
+             | ('while' SC) Condition (SC) Prog (done)       action => While
+             | ('if' SC) Condition (SC) Prog (done)          action => If
+             | ('if' SC) Condition (SC) Prog ('else' SC) Prog (done)
                                                              action => If
              | NewCommand                                    action => call
 Condition  ::= ('there' q 's' SC 'a' SC) Covering            action => ::first
@@ -91,12 +91,14 @@ Num        ::= non_zero                                      action => ::first
              | non_zero digits                               action => concat
 Times      ::= 'times'
              | 'x'
-Comment    ::= ('#' non_lf lf)
+Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
 SpComm     ::= Comment
             || space
 
 
+octothorpe ~ '#'
+done       ~ 'done'
 alpha      ~ [a-z]
 valid_name ~ [-a-z_0-9]+
 non_zero   ~ [1-9]
@@ -150,9 +152,20 @@ sub parse {
                 ->new({ grammar           => $self->_grammar,
                         semantics_package => $self->action_class,
                       });
-    $recce->read(\$input);
-    # warn $recce->show_progress(1);
+
+    eval { $recce->read(\$input);
+           1 } or die $@;
+
     my $value = $recce->value;
+    if (! $value) {
+        my ($from, $length) = $recce->last_completed('Command');
+        my @expected = @{ $recce->terminals_expected };
+        my $E = bless { last_completed => $recce->substring($from, $length),
+                        expected       => \@expected,
+                        span           => [ $from, $length ],
+                      }, ref($self) . '::Exception';
+        die $E
+    }
     return $input =~ /^run / ? $value : @$$value
 }
 

@@ -79,7 +79,7 @@ $r->step while $r->is_running;
 is($r->direction, 'N', 'if');
 
 
-my ($d9_ss, $unknwon) =  $p->parse( << '__EOF__');
+my ($d9_ss, $unknwon) =  $p->parse(<< '__EOF__');
 command safe-step
     if there's no wall
         forward
@@ -112,7 +112,7 @@ $r->step while $r->is_running;
 is($r->direction, 'W', 'run core');
 
 
-my ($with_comment) = $p->parse( << '__EOF__');
+my $code = << '__EOF__';
 command run
 # testing comment 'blah'
     while there's no # wait for it!
@@ -122,11 +122,48 @@ command run
 end
 __EOF__
 
-$r->_learn(%$with_comment);
-$r->_run([['c', 'run']]);
-$r->step while $r->is_running;
+my ($with_comment)    = $p->parse($code);
+my ($without_comment) = $p->parse(do {
+    (my $code2 = $code) =~ s/#.*\n?//g;
+    $code2
+});
+is_deeply($with_comment, $without_comment, 'comments ignored');
+
+
+my $fail = eval {
+    my ($wrong) = $p->parse(<< '__EOF__');
+command wrong
+while there's a wall
+  forward
+__EOF__
+    1 };
+my $E = $@;
+ok(! $fail, 'failure');
+is(ref $E, 'Karel::Parser::Exception', 'exception object');
+is($E->{last_completed}, 'forward', 'last completed');
+my @expected = @{ $E->{expected} };
+is(scalar @expected, 3, 'three expected');
+for my $lexeme (qw( done octothorpe space )) {
+    ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
+}
+
+$fail = eval {
+    my ($wrong) = $p->parse(<< '__EOF__');
+command wrong
+while there's a wall
+  forward
+done
+__EOF__
+    1 };
+$E = $@;
+ok(! $fail, 'failure');
+is(ref $E, 'Karel::Parser::Exception', 'exception object');
+like($E->{last_completed}, qr/while .* done/xs, 'last completed');
+@expected = @{ $E->{expected} };
+is(scalar @expected, 2, 'two');
+for my $lexeme (qw( octothorpe space )) {
+    ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
+}
+
 
 done_testing();
-
-
-
