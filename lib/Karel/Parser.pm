@@ -57,21 +57,21 @@ START      ::= Defs                                          action => ::first
              | ('run' SC) Command                            action => [value]
 
 Defs       ::= Def+  separator => SC                         action => defs
-Def        ::= ('command') (SC) NewCommand (SC) Prog (SC) ('end')
+Def        ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
 Commands   ::= Command+  separator => SC                     action => list
-Command    ::= 'left'                                        action => left
-             | 'forward'                                     action => forward
-             | 'drop-mark'                                   action => drop
-             | 'pick-mark'                                   action => pick
-             | 'stop'                                        action => stop
-             | ('repeat' SC) Num (SC Times SC) Prog (SC done)
+Command    ::= left                                          action => left
+             | forward                                       action => forward
+             | drop_mark                                     action => drop
+             | pick_mark                                     action => pick
+             | stop                                          action => stop
+             | (repeat SC) Num (SC Times SC) Prog (SC done)
                                                              action => repeat
-             | ('while' SC) Condition (SC) Prog (done)       action => While
-             | ('if' SC) Condition (SC) Prog (done)          action => If
-             | ('if' SC) Condition (SC) Prog ('else' SC) Prog (done)
+             | (while SC) Condition (SC) Prog (done)         action => While
+             | (if SC) Condition (SC) Prog (done)            action => If
+             | (if SC) Condition (SC) Prog (else SC) Prog (done)
                                                              action => If
              | NewCommand                                    action => call
 Condition  ::= ('there' q 's' SC 'a' SC) Covering            action => ::first
@@ -93,10 +93,21 @@ Times      ::= 'times'
              | 'x'
 Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
+SCMaybe    ::= SpComm*
 SpComm     ::= Comment
             || space
 
-
+command ~ 'command'
+left ~ 'left'
+forward ~ 'forward'
+drop_mark ~ 'drop-mark'
+pick_mark ~ 'pick-mark'
+stop ~ 'stop'
+repeat ~ 'repeat'
+while ~ 'while'
+if ~ 'if'
+else ~ 'else'
+end ~ 'end'
 octothorpe ~ '#'
 done       ~ 'done'
 alpha      ~ [a-z]
@@ -147,7 +158,6 @@ run, as simple C<[[ 'c', $command ]]> doesn't work for core commands
 
 sub parse {
     my ($self, $input) = @_;
-    $input =~ s/^\s+|\s+$//g;
     my $recce = 'Marpa::R2::Scanless::R'
                 ->new({ grammar           => $self->_grammar,
                         semantics_package => $self->action_class,

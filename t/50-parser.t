@@ -130,6 +130,9 @@ my ($without_comment) = $p->parse(do {
 is_deeply($with_comment, $without_comment, 'comments ignored');
 
 
+my @valid = qw( alpha left forward drop_mark pick_mark stop repeat
+                while if octothorpe space );
+
 my $fail = eval {
     my ($wrong) = $p->parse(<< '__EOF__');
 command wrong
@@ -142,8 +145,8 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Exception', 'exception object');
 is($E->{last_completed}, 'forward', 'last completed');
 my @expected = @{ $E->{expected} };
-is(scalar @expected, 3, 'three expected');
-for my $lexeme (qw( done octothorpe space )) {
+is(scalar @expected, 12, 'twelve expected');
+for my $lexeme (@valid, 'done') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }
 
@@ -160,8 +163,8 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Exception', 'exception object');
 like($E->{last_completed}, qr/while .* done/xs, 'last completed');
 @expected = @{ $E->{expected} };
-is(scalar @expected, 2, 'two');
-for my $lexeme (qw( octothorpe space )) {
+is(scalar @expected, 12, 'twelve expected');
+for my $lexeme (@valid, 'end') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }
 
