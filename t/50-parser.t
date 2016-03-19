@@ -145,7 +145,7 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Exception', 'exception object');
 is($E->{last_completed}, 'forward', 'last completed');
 my @expected = @{ $E->{expected} };
-is(scalar @expected, 12, 'twelve expected');
+is(scalar @expected, 1 + @valid, 'twelve expected');
 for my $lexeme (@valid, 'done') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }
@@ -163,7 +163,7 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Exception', 'exception object');
 like($E->{last_completed}, qr/while .* done/xs, 'last completed');
 @expected = @{ $E->{expected} };
-is(scalar @expected, 12, 'twelve expected');
+is(scalar @expected, 1 + @valid, 'twelve expected');
 for my $lexeme (@valid, 'end') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }

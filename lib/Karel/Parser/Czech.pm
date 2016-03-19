@@ -60,21 +60,21 @@ START      ::= Defs                                          action => ::first
              | ('run' SC) Command                            action => [value]
 
 Defs       ::= Def+  separator => SC                         action => defs
-Def        ::= ('příkaz') (SC) NewCommand (SC) Prog (SC) ('konec')
+Def        ::= (SCMaybe) (< prikaz >) (SC) NewCommand (SC) Prog (SC) (konec)
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
 Commands   ::= Command+  separator => SC                     action => list
-Command    ::= 'vlevo'                                       action => left
-             | 'krok'                                        action => forward
-             | 'polož'                                       action => drop
-             | 'zvedni'                                      action => pick
-             | 'stůj'                                        action => stop
-             | ('opakuj' SC) Num (SC Times SC) Prog (SC hotovo)
+Command    ::= vlevo                                         action => left
+             | krok                                          action => forward
+             | poloz                                         action => drop
+             | zvedni                                        action => pick
+             | stuj                                          action => stop
+             | (opakuj SC) Num (SC Times SC) Prog (SC hotovo)
                                                              action => repeat
-             | ('dokud' SC) Condition (SC) Prog (hotovo)     action => While
-             | ('když' SC) Condition (SC) Prog (hotovo)      action => If
-             | ('když' SC) Condition (SC) Prog ('jinak' SC) Prog (hotovo)
+             | (dokud SC) Condition (SC) Prog (hotovo)       action => While
+             | (kdyz SC) Condition (SC) Prog (hotovo)        action => If
+             | (kdyz SC) Condition (SC) Prog (jinak SC) Prog (hotovo)
                                                              action => If
              | NewCommand                                    action => call
 Condition  ::= ('je' SC) Object                              action => ::first
@@ -91,9 +91,21 @@ Times      ::= 'krát'
              | 'x'
 Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
+SCMaybe    ::= SpComm*
 SpComm     ::= Comment
             || space
 
+vlevo      ~ 'vlevo'
+krok       ~ 'krok'
+poloz      ~ 'polož'
+zvedni     ~ 'zvedni'
+stuj       ~ 'stůj'
+konec      ~ 'konec'
+dokud      ~ 'dokud'
+kdyz       ~ 'kdyz'
+jinak      ~ 'jinak'
+opakuj     ~ 'opakuj'
+prikaz     ~ 'příkaz'
 hotovo     ~ 'hotovo'
 octothorpe ~ '#'
 alpha      ~ [[:lower:]]

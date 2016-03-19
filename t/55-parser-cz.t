@@ -10,6 +10,9 @@ ok(1, 'used');
 my $p = 'Karel::Parser::Czech'->new;
 ok($p, 'constructor');
 
+my @valid = qw( dokud kdyz opakuj vlevo krok poloz zvedni stuj
+                alpha octothorpe space );
+
 my $fail = eval {
     my ($wrong) = $p->parse(<< '__EOF__');
 příkaz chyba
@@ -22,8 +25,8 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 is($E->{last_completed}, 'krok', 'last completed');
 my @expected = @{ $E->{expected} };
-is(scalar @expected, 3, 'three expected');
-for my $lexeme (qw( hotovo )) {
+is(scalar @expected, 1 + @valid, 'twelve expected');
+for my $lexeme (@valid, 'hotovo') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }
 
@@ -40,8 +43,8 @@ ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 like($E->{last_completed}, qr/dokud .* hotovo/xs, 'last completed');
 @expected = @{ $E->{expected} };
-is(scalar @expected, 2, 'two');
-for my $lexeme (qw( octothorpe space )) {
+is(scalar @expected, 1 + @valid, 'twelve expected');
+for my $lexeme (@valid, 'konec') {
     ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
 }
 
