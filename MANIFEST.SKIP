@@ -2,5 +2,6 @@ MANIFEST\.SKIP
 \.gitignore
 \.git
 ~$
-cover\.db/
+cover_db/
 cover_db\.[0-9]+/
+Makefile\.old

@@ -49,5 +49,19 @@ for my $lexeme (@valid, 'konec') {
 }
 
 
+my $command_x = << '__EOF__';
+příkaz chyba dokud je zeďx
+krok hotovo konec
+__EOF__
+
+$fail = eval {
+    my ($wrong) = $p->parse($command_x);
+    1 };
+$E = $@;
+# TODO: wrap in the exception obj
+is(ref $E, q(), 'no obj');
+my $pos_x = 1 + index $command_x, 'x';
+like($E, qr/ line 1, column $pos_x,/, 'error position');
+
 
 done_testing();

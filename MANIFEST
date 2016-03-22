@@ -20,6 +20,7 @@ t/20-robot.t
 t/30-loading.t
 t/40-running.t
 t/50-parser.t
+t/55-parser-cz.t
 t/60-learn.t
 t/70-czech.t
 t/manifest.t
