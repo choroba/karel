@@ -163,8 +163,14 @@ sub parse {
                         semantics_package => $self->action_class,
                       });
 
-    eval { $recce->read(\$input);
-           1 } or die $@;
+    my ($line, $column);
+    eval {
+        $recce->read(\$input);
+    1 } or do {
+        my $exception = $@;
+        ($line, $column)
+            = $exception =~ /line ([0-9]+), column ([0-9]+)/;
+    };
 
     my $value = $recce->value;
     if (! $value) {
@@ -173,6 +179,7 @@ sub parse {
         my $E = bless { last_completed => $recce->substring($from, $length),
                         expected       => \@expected,
                         span           => [ $from, $length ],
+                        pos            => [ $line, $column ],
                       }, ref($self) . '::Exception';
         die $E
     }

@@ -58,10 +58,14 @@ $fail = eval {
     my ($wrong) = $p->parse($command_x);
     1 };
 $E = $@;
-# TODO: wrap in the exception obj
-is(ref $E, q(), 'no obj');
+is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 my $pos_x = 1 + index $command_x, 'x';
-like($E, qr/ line 1, column $pos_x,/, 'error position');
-
+is($E->{pos}[0], 1, 'line');
+is($E->{pos}[1], $pos_x, 'column');
+my @expected = @{ $E->{expected} };
+is(scalar @expected, 2, 'two expected');
+for my $lexeme (qw( octothorpe space )) {
+   ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
+}
 
 done_testing();
