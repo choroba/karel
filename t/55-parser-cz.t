@@ -50,7 +50,7 @@ for my $lexeme (@valid, 'konec') {
 
 
 my $command_x = << '__EOF__';
-příkaz chyba dokud je zeďx
+příkaz chyba krok dokud je zeďx
 krok hotovo konec
 __EOF__
 
@@ -62,6 +62,9 @@ is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 my $pos_x = 1 + index $command_x, 'x';
 is($E->{pos}[0], 1, 'line');
 is($E->{pos}[1], $pos_x, 'column');
+is($E->{last_completed}, 'krok', 'last completed');
+is($E->{span}[0], 5, 'span from');
+is($E->{span}[1], 1, 'span to');
 @expected = @{ $E->{expected} };
 is(scalar @expected, 2, 'two expected');
 for my $lexeme (qw( octothorpe space )) {
