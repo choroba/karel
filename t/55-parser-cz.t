@@ -62,7 +62,7 @@ is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 my $pos_x = 1 + index $command_x, 'x';
 is($E->{pos}[0], 1, 'line');
 is($E->{pos}[1], $pos_x, 'column');
-my @expected = @{ $E->{expected} };
+@expected = @{ $E->{expected} };
 is(scalar @expected, 2, 'two expected');
 for my $lexeme (qw( octothorpe space )) {
    ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);

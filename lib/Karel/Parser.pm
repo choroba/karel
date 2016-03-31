@@ -173,14 +173,14 @@ sub parse {
     };
 
     my $value = $recce->value;
-    if (! $value) {
+    if ($line || ! $value) {
         my ($from, $length) = $recce->last_completed('Command');
         my @expected = @{ $recce->terminals_expected };
-        my $E = bless { last_completed => $recce->substring($from, $length),
-                        expected       => \@expected,
-                        span           => [ $from, $length ],
-                        pos            => [ $line, $column ],
-                      }, ref($self) . '::Exception';
+        my $E = bless { expected => \@expected }, ref($self) . '::Exception';
+        my $last = $recce->substring($from, $length) if defined $from;
+        $E->{last_completed} = $last if $last;
+        $E->{span} = [ $from, $length ] if defined $from;
+        $E->{pos}  = [ $line, $column ] if $line;
         die $E
     }
     return $input =~ /^run / ? $value : @$$value
