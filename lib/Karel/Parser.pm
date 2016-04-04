@@ -168,8 +168,7 @@ sub parse {
         $recce->read(\$input);
     1 } or do {
         my $exception = $@;
-        ($line, $column)
-            = $exception =~ /line ([0-9]+), column ([0-9]+)/;
+        ($line, $column) = $recce->line_column;
     };
 
     my $value = $recce->value;
@@ -179,8 +178,11 @@ sub parse {
         my $E = bless { expected => \@expected }, ref($self) . '::Exception';
         my $last = $recce->substring($from, $length) if defined $from;
         $E->{last_completed} = $last if $last;
-        $E->{span} = [ $from, $length ] if defined $from;
-        $E->{pos}  = [ $line, $column ] if $line;
+        if ($line) {
+            $E->{pos} = [ $line, $column ];
+        } else {
+            $E->{pos} = [ $recce->line_column ];
+        }
         die $E
     }
     return $input =~ /^run / ? $value : @$$value

@@ -24,6 +24,8 @@ my $E = $@;
 ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 is($E->{last_completed}, 'krok', 'last completed');
+is($E->{pos}[0], 3, 'line');
+is($E->{pos}[1], 8, 'column');
 my @expected = @{ $E->{expected} };
 is(scalar @expected, 1 + @valid, 'twelve expected');
 for my $lexeme (@valid, 'hotovo') {
@@ -42,6 +44,8 @@ $E = $@;
 ok(! $fail, 'failure');
 is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
 like($E->{last_completed}, qr/dokud .* hotovo/xs, 'last completed');
+is($E->{pos}[0], 4, 'line');
+is($E->{pos}[1], 8, 'column');
 @expected = @{ $E->{expected} };
 is(scalar @expected, 1 + @valid, 'twelve expected');
 for my $lexeme (@valid, 'konec') {
@@ -63,8 +67,6 @@ my $pos_x = 1 + index $command_x, 'x';
 is($E->{pos}[0], 1, 'line');
 is($E->{pos}[1], $pos_x, 'column');
 is($E->{last_completed}, 'krok', 'last completed');
-is($E->{span}[0], 5, 'span from');
-is($E->{span}[1], 1, 'span to');
 @expected = @{ $E->{expected} };
 is(scalar @expected, 2, 'two expected');
 for my $lexeme (qw( octothorpe space )) {
