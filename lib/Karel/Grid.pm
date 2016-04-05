@@ -37,10 +37,10 @@ Returns the size of the grid.
 
 =cut
 
-has $_ => (is       => 'ro',
-           isa      => \&positive_int,
-           required => 1,
-          ) for qw( x y );
+has [qw[ x y ]] => (is       => 'ro',
+                    isa      => \&positive_int,
+                    required => 1,
+                   );
 
 
 has _grid => ( is  => 'rw',

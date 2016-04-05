@@ -42,9 +42,9 @@ Coordinates of the robot in its grid.
 
 =cut
 
-has "$_"  => ( is  => 'rwp',
-               isa => \&positive_int,
-             ) for qw( x y );
+has [qw[ x y ]] => ( is  => 'rwp',
+                     isa => \&positive_int,
+                   );
 
 =item $robot->grid
 
@@ -59,9 +59,9 @@ my $grid_type    = sub {
 };
 
 
-has 'grid' => ( is  => 'rwp',
-                isa => $grid_type,
-              );
+has grid => ( is  => 'rwp',
+              isa => $grid_type,
+            );
 
 =item $robot->set_grid($grid, $x, $y, $direction);
 
@@ -121,10 +121,10 @@ my $string_list = sub {
     }
 };
 
-has 'direction' => ( is      => 'rwp',
-                     isa     => $string_list->(qw( N W S E )),
-                     default => 'N',
-                   );
+has direction => ( is      => 'rwp',
+                   isa     => $string_list->(qw( N W S E )),
+                   default => 'N',
+                 );
 
 =item $robot->left
 
