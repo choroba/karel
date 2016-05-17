@@ -4,7 +4,7 @@ use strict;
 
 use Karel::Robot;
 use Test::More;
-
+use Test::Exception;
 
 sub count_steps {
     my $r = shift;
@@ -38,7 +38,7 @@ $r->step;
 is($r->direction, 'W', '2nd step');
 
 ok(! $r->_stack, 'stack empty');
-isnt(eval { $r->step; 1 }, 1, "can't step");
+dies_ok { $r->step } "can't step";
 
 $r->_run([ (['l']) x 4]);
 is(count_steps($r), 4, 'count steps');

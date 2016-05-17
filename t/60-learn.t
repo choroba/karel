@@ -5,6 +5,7 @@ use strict;
 #use Data::Dumper;
 
 use Test::More;
+use Test::Exception;
 use Karel::Robot;
 
 my $r = 'Karel::Robot'->new;
@@ -35,6 +36,6 @@ $r->run('pick-all');
 $r->step while $r->is_running;
 is($r->cover, ' ', 'recursion9');
 
-isnt(eval { $r->run('forward forward'); 1 }, 1, 'only 1 command');
+dies_ok { $r->run('forward forward') } 'only 1 command';
 
 done_testing();

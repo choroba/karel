@@ -3,11 +3,12 @@ use warnings;
 use strict;
 
 use Test::More;
+use Test::Exception;
 use Karel::Robot;
 
 my $r = 'Karel::Robot'->new;
 
-isnt(eval { $r->load_grid( url => 'http://' ); 1 }, 1, 'invalid type');
+dies_ok { $r->load_grid( url => 'http://' ) } 'invalid type';
 
 
 my $G1 = << '__GRID__';
@@ -47,7 +48,7 @@ is($r->x, 3, 'x backup');
 is($r->y, 3, 'y backup');
 is($r->direction, 'S', 'direction backup');
 
-isnt(eval { $r->load_grid( string => << '__GRID__' ); 1}, 1, 'W inside');
+dies_ok { $r->load_grid( string => << '__GRID__' ) } 'W inside';
 # karel v0.01 2 1
 WWWW
 W> WW
