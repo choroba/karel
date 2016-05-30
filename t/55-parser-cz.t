@@ -1,76 +1,82 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
-
-use Test::More;
-use Karel::Parser::Czech;
 use utf8;
 
-ok(1, 'used');
-my $p = 'Karel::Parser::Czech'->new;
-ok($p, 'constructor');
+use Test::Spec;
 
-my @valid = qw( dokud kdyz opakuj vlevo krok poloz zvedni stuj
-                alpha octothorpe space );
+use Karel::Parser::Czech;
 
-my $fail = eval {
-    my ($wrong) = $p->parse(<< '__EOF__');
+my $CLASS = 'Karel::Parser::Czech';
+
+describe $CLASS => sub {
+
+    it 'instantiates' => sub {
+        my $parser = $CLASS->new;
+        isa_ok $parser, $CLASS;
+    };
+
+    describe 'errors' => sub {
+
+
+        my ($command, $E, $expected_exception);
+        shared_examples_for 'failure' => sub {
+            it 'fails' => sub {
+                my $parser = $CLASS->new;
+                trap { $parser->parse($command) };
+                $E = $trap->die;
+                isa_ok $E, "$CLASS\::Exception";
+                cmp_deeply $E, noclass($expected_exception);
+            };
+        };
+
+        my @valid = qw( dokud kdyz opakuj vlevo krok poloz zvedni stuj
+                        alpha octothorpe space );
+
+        describe 'unfinished command' => sub {
+            before all => sub {
+                $command = <<'__EOF__';
 příkaz chyba
 dokud je zeď
   krok
 __EOF__
-    1 };
-my $E = $@;
-ok(! $fail, 'failure');
-is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
-is($E->{last_completed}, 'krok', 'last completed');
-is($E->{pos}[0], 3, 'line');
-is($E->{pos}[1], 8, 'column');
-my @expected = @{ $E->{expected} };
-is(scalar @expected, 1 + @valid, 'twelve expected');
-for my $lexeme (@valid, 'hotovo') {
-    ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
-}
+                $expected_exception= { last_completed => 'krok',
+                                       pos => [3, 8],
+                                       expected => bag(@valid, 'hotovo'),
+                                   };
+            };
+            it_should_behave_like 'failure';
+        };
 
-$fail = eval {
-    my ($wrong) = $p->parse(<< '__EOF__');
+        describe 'missing end' => sub {
+            before all => sub {
+                $command = << '__EOF__';
 příkaz chyba
 dokud je zeď
   krok
 hotovo
 __EOF__
-    1 };
-$E = $@;
-ok(! $fail, 'failure');
-is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
-like($E->{last_completed}, qr/dokud .* hotovo/xs, 'last completed');
-is($E->{pos}[0], 4, 'line');
-is($E->{pos}[1], 8, 'column');
-@expected = @{ $E->{expected} };
-is(scalar @expected, 1 + @valid, 'twelve expected');
-for my $lexeme (@valid, 'konec') {
-    ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
-}
+                $expected_exception
+                    = { last_completed => re(qr/dokud .* hotovo/xs),
+                        pos => [4, 8],
+                        expected => bag(@valid, 'konec'),
+                      };
+            };
+            it_should_behave_like 'failure';
+        };
 
-
-my $command_x = << '__EOF__';
+        describe 'handles an unknown word' => sub {
+            before all => sub {
+                $command = << '__EOF__';
 příkaz chyba krok dokud je zeďx
 krok hotovo konec
 __EOF__
+                $expected_exception= { last_completed => 'krok',
+                                       pos => [ 1, 1 + index $command, 'x' ],
+                                       expected => bag(qw( octothorpe space )),
+                                   };
+            };
+            it_should_behave_like 'failure';
+        };
+    };
+};
 
-$fail = eval {
-    my ($wrong) = $p->parse($command_x);
-    1 };
-$E = $@;
-is(ref $E, 'Karel::Parser::Czech::Exception', 'exception object');
-my $pos_x = 1 + index $command_x, 'x';
-is($E->{pos}[0], 1, 'line');
-is($E->{pos}[1], $pos_x, 'column');
-is($E->{last_completed}, 'krok', 'last completed');
-@expected = @{ $E->{expected} };
-is(scalar @expected, 2, 'two expected');
-for my $lexeme (qw( octothorpe space )) {
-   ok(scalar(grep $_ eq $lexeme, @expected), $lexeme);
-}
-
-done_testing();
+runtests();
