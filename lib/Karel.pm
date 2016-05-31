@@ -11,8 +11,8 @@ use Karel::Grid;
 
 =head1 NAME
 
-Karel the Robot - Learn programming with a robot that understands few
-simple commands.
+Karel - Learn programming with a robot that understands few simple
+commands.
 
 =head1 VERSION
 
