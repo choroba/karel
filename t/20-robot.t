@@ -1,38 +1,70 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
+use Test::Spec;
+use Test::Exception;
 
 use Karel::Robot;
 use Karel::Grid;
-use Test::More;
-use Test::Exception;
 
-my $k = 'Karel::Robot'->new;
-ok($k, 'constructor');
-is(ref $k, 'Karel::Robot');
-dies_ok { $k->left } 'no direction';
-dies_ok { $k->grid } 'no grid';
+describe 'Karel::Robot' => sub {
 
-my $m = 'Karel::Grid'->new(x => 1, y => 2);
-$k->set_grid($m, 1, 1);
-is($k->grid, $m, 'grid');
-ok($k->does('Karel::Robot::WithGrid'), 'role');
-is($k->direction, 'N', 'default direction');
+    describe 'gridless' => sub {
+        my $k;
+        before each => sub {
+            $k = 'Karel::Robot'->new;
+        };
 
-$k->left;
-is($k->direction, 'W', 'turn left');
-$k->left for 1 .. 3;
-is($k->direction, 'N', 'back north');
+        it instantiates => sub {
+            isa_ok $k, 'Karel::Robot';
+        };
 
-dies_ok { $k->run_step } 'no step in edit mode';
+        it 'has no grid related attributes' => sub {
+            for my $m (qw( left grid )) {
+                dies_ok { $k->$m };
+            }
+        };
+    };
 
-is($k->facing, 'W', 'facing wall');
-$k->left;
-my @f = $k->facing_coords;
-is($f[0], 0, 'facing x coord');
-is($f[1], 1, 'facing y coord');
-$k->left;
-is($k->facing, ' ', 'facing blank');
+    describe 'grid' => sub {
+        my ($k, $grid);
+        before each => sub {
+            $k = 'Karel::Robot'->new;
+            $grid = 'Karel::Grid'->new(x => 1, y => 2);
+            $k->set_grid($grid, 1, 1);
+        };
 
-done_testing();
+        it 'takes a grid' => sub {
+            is $k->grid, $grid;
+        };
 
+        it 'changes role' => sub {
+            ok $k->does('Karel::Robot::WithGrid');
+        };
+
+        it 'sets default direction if none given' => sub {
+            is $k->direction, 'N';
+        };
+
+        it 'can turn' => sub {
+            $k->left;
+            is $k->direction, 'W';
+
+            $k->left for 1 .. 3;
+            is $k->direction, 'N';
+        };
+
+        it "can't move in edit mode" => sub {
+            dies_ok { $k->run_step };
+        };
+
+        it 'knows the neighbourhood' => sub {
+            is $k->facing, 'W';
+            cmp_deeply [ $k->facing_coords ], [ 1, 0 ];
+
+            $k->left;
+            cmp_deeply [ $k->facing_coords ], [ 0, 1 ];
+        };
+
+    };
+};
+
+runtests();
