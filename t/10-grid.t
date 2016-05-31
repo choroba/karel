@@ -1,45 +1,108 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
-
-use Test::More;
+use Test::Spec;
 use Test::Exception;
+
 use Karel::Grid;
 
-my $m = 'Karel::Grid'->new(x => 1, y => 2);
+describe 'Karel::Grid' => sub {
+    describe 'default' => sub {
+        my $g;
+        before each => sub {
+            $g = 'Karel::Grid'->new(x => 1, y => 2);
+        };
 
-is($m->at(1, 2), ' ', 'map');
-is($m->at(0, 0), 'W', 'wall');
-is($m->at(2, 2), 'W', 'wall');
-dies_ok { $m->at(3, 1) } 'out of range';
+        it 'features an empty cell' => sub {
+            is $g->at(1, 2), ' ';
+        };
 
-$m->build_wall(1, 2);
-is($m->at(1, 2), 'w', 'wall built');
-$m->remove_wall(1, 2);
-is($m->at(1, 2), ' ', 'wall removed');
+        it 'features walls' => sub {
+            cmp_methods $g, [ [ 'at', 0, 0 ] => 'W',
+                              [ 'at', 2, 2 ] => 'W',
+                            ];
+        };
 
-dies_ok { $m->remove_wall(1, 2) } "can't remove non-wall";
-dies_ok { $m->_set(1, 2, '!') } 'unknown object';
+        it "can't go beyond boundaries" => sub {
+            dies_ok { $g->at(3, 1) };
+        };
+    };
 
-$m->drop_mark(1, 2);
-is($m->at(1,2), 1, 'mark dropped');
-$m->drop_mark(1, 2) for 2 .. 9;
-is($m->at(1,2), 9, 'nine marks dropped');
-dies_ok { $m->drop_mark(1, 2) } "can't drop ten marks";
+    describe building => sub {
+        my $g;
+        before each => sub {
+            $g = 'Karel::Grid'->new(x => 1, y => 2);
+            $g->build_wall(1, 2);
+        };
 
-$m->pick_mark(1, 2);
-is($m->at(1, 2), 8, 'mark picked');
-$m->pick_mark(1, 2) for 1 .. 8;
-is($m->at(1, 2), ' ', 'all marks picked');
-dies_ok { $m->pick_mark(1, 2) } "can't pick no mark";
+        it 'builds a wall' => sub {
+            is $g->at(1, 2), 'w';
+        };
 
-$m->drop_mark(1, 2);
-$m->clear(1, 2);
-is($m->at(1, 2), ' ', 'mark cleared');
-$m->build_wall(1, 2);
-$m->clear(1, 2);
-is($m->at(1, 2), ' ', 'wall cleared');
+        it 'removes a wall' => sub {
+            $g->remove_wall(1, 2);
+            is $g->at(1, 2), ' ';
+        };
 
-dies_ok { $m->clear(0, 0) } "can't clear W";
+        it "can't remove a non-wall" => sub {
+            dies_ok { $g->remove_wall(1, 1) };
+        };
 
-done_testing();
+        it "can't build unknown objects internally" => sub {
+            dies_ok { $g->_set(1, 2, '!') };
+        };
+    };
+
+    describe marks => sub {
+        my $g;
+        before each => sub {
+            $g = 'Karel::Grid'->new(x => 1, y => 2);
+            $g->drop_mark(1, 2);
+        };
+
+        it 'can be dropped' => sub {
+            is $g->at(1, 2), 1;
+        };
+
+        it 'can be picked' => sub {
+            $g->pick_mark(1, 2);
+            is $g->at(1, 2), ' ';
+        };
+
+        they 'can be more up to nine' => sub {
+            $g->drop_mark(1, 2) for 2 .. 9;
+            is $g->at(1, 2), 9;
+            dies_ok { $g->drop_mark(1, 2) };
+        };
+
+        they 'can be picked all' => sub {
+            $g->drop_mark(1, 2) for 2 .. 9;
+            $g->pick_mark(1, 2) for 1 .. 9;
+            is $g->at(1, 2), ' ';
+            dies_ok { $g->pick_mark(1, 2) };
+        };
+    };
+
+    describe clearing => sub {
+        my $g;
+        before each => sub {
+            $g = 'Karel::Grid'->new(x => 1, y => 2);
+        };
+
+        it 'can remove a mark' => sub {
+            $g->drop_mark(1, 2);
+            $g->clear(1, 2);
+            is $g->at(1, 2), ' ';
+        };
+
+        it 'can remove a wall' => sub {
+            $g->build_wall(1, 2);
+            $g->clear(1, 2);
+            is $g->at(1, 2), ' ';
+        };
+
+        it "can't remove a boundary" => sub {
+            dies_ok { $g->clear(0, 0) };
+        };
+    };
+};
+
+runtests();
