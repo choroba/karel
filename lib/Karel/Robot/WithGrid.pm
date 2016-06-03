@@ -54,8 +54,9 @@ The associated C<Karel::Grid> object.
 
 =cut
 
-my $grid_type    = sub {
-    'Karel::Grid' eq ref shift or croak "Invalid grid type\n"
+my $grid_type = sub {
+    my ($grid) = @_;
+    eval { $grid->isa('Karel::Grid') } or croak "Invalid grid type\n";
 };
 
 
