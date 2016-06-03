@@ -155,6 +155,8 @@ sub load_grid {
         ++$r;
     }
 
+    croak 'Wall at starting position' if 'w' eq lc $grid->at(@pos);
+
     eval {
         $_[0]->set_grid($grid, @pos, $direction);
     1 } or do {

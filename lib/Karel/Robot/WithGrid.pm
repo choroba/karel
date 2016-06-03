@@ -78,7 +78,6 @@ around set_grid => sub {
     $self->_set_x($x);
     $self->_set_y($y);
     $self->_set_direction($direction) if $direction;
-    croak "Wall at starting position" if $self->cover =~ /w/i;
 };
 
 =item $robot->drop_mark
