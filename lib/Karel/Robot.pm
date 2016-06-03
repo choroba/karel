@@ -146,7 +146,7 @@ sub load_grid {
                               }
                           } keys %faces )
                         }->{ $chars[$c] };
-            croak "Unknown grid character '$chars[$c]'" unless $build;
+            croak "Unknown or invalid grid character '$chars[$c]'" unless $build;
             $grid->$build($c, $r);
         } continue {
             ++$c;

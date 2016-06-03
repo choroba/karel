@@ -24,5 +24,6 @@ t/55-parser-cz.t
 t/60-learn.t
 t/70-czech.t
 t/manifest.t
+t/minimal.kg
 t/pod-coverage.t
 t/pod.t
