@@ -1,6 +1,6 @@
 # -*- mode: org -*-
 
-* TODO [7/11]
+* TODO [7/12]
 
 - [X] running learned commands: push the corresponding compiled struct
 
@@ -9,6 +9,9 @@
 - [X] repeat 0 x - fails to parse
 
 - [X] add version to grid files
+
+- [ ] for "expected" in exceptions, parser should provide a nicer
+  messages than "octothorpe" etc.
 
 - [ ] parser should report core commands, so we can deparse
 
