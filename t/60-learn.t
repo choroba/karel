@@ -1,41 +1,77 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
-
-#use Data::Dumper;
-
-use Test::More;
+use Test::Spec;
 use Test::Exception;
+
 use Karel::Robot;
 
-my $r = 'Karel::Robot'->new;
-$r->learn( << '__CMD__');
+
+describe 'Karel::Robot' => sub {
+    my $r;
+    before each => sub {
+        $r = 'Karel::Robot'->new;
+        $r->learn( << '__CMD__');
 command right repeat 3 x left done end
 command westward if not facing West left westward done end
 command pick-all if there's a mark pick-mark pick-all done end
 __CMD__
+        return $r
+    };
 
-ok($r->knows('right'), 'learns without grid');
-ok($r->knows('westward'), 'learns without grid');
-$r->set_grid('Karel::Grid'->new(x => 5, y => 5), 3, 3, 'N');
+    describe 'without grid' => sub {
 
-$r->run('right');
-$r->step while $r->is_running;
-is($r->direction, 'E', 'right');
+        it 'learns several commands' => sub {
+            cmp_methods $r, [ map { [ knows => $_ ] => bool(1) }
+                                  qw( right westward ) ];
+        };
 
-$r->run('westward');
-$r->step while $r->is_running;
-is($r->direction, 'W', 'recursion2');
+        it "can't run commands" => sub {
+            throws_ok { $r->run('right') } qr/method "run"/;
+        };
+    };
 
-$r->run('xxx'); # ignored
-$r->run('repeat 9 x drop-mark done');
-$r->step while $r->is_running;
-is($r->cover, '9', 'dropped');
+    describe 'with a grid' => sub {
+        before each => sub {
+            $r->set_grid('Karel::Grid'->new(x => 5, y => 5), 3, 3, 'N');
+        };
 
-$r->run('pick-all');
-$r->step while $r->is_running;
-is($r->cover, ' ', 'recursion9');
+        it 'runs command' => sub {
+            $r->run('right');
+            $r->step while $r->is_running;
+            is $r->direction, 'E';
+        };
 
-dies_ok { $r->run('forward forward') } 'only 1 command';
+        it 'runs recursive commands' => sub {
+            $r->run('westward');
+            $r->step while $r->is_running;
+            is $r->direction, 'W';
 
-done_testing();
+        };
+
+        it 'ignores run without step' => sub {
+            lives_ok { $r->run('unknown') };
+            $r->run('stop');
+            $r->step while $r->is_running;
+        };
+
+        it 'runs a complex command' => sub {
+            $r->run('repeat 9 x drop-mark done');
+            $r->step while $r->is_running;
+            is $r->cover, '9';
+        };
+
+        it 'runs a deeper recursion' => sub {
+            $r->run('repeat 9 x drop-mark done');
+            $r->step while $r->is_running;
+
+            $r->run('pick-all');
+            $r->step while $r->is_running;
+            is $r->cover, ' ';
+        };
+
+        it "can't run several commands at once" => sub {
+            dies_ok { $r->run('forward forward') };
+        };
+    };
+};
+
+runtests();
