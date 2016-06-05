@@ -1,41 +1,52 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
 use utf8;
+use Test::Spec;
 
 use Karel::Robot;
 use Karel::Parser::Czech;
-use Test::More;
 
+my $COMMAND_RIGHT = 'příkaz vpravo opakuj 3 krát vlevo hotovo konec';
 
-my $robot = 'Karel::Robot'->new(parser => 'Karel::Parser::Czech'->new);
-ok($robot);
+describe 'Karel::Robot with a Czech parser' => sub {
+    my $robot;
+    before each => sub {
+        $robot = 'Karel::Robot'->new(parser => 'Karel::Parser::Czech'->new);
+        $robot->set_grid('Karel::Grid'->new(x => 1, y => 1), 1, 1, 'N');
+    };
 
-$robot->learn('příkaz vpravo opakuj 3 krát vlevo hotovo konec');
+    it 'runs core commands' => sub {
+        $robot->run('vlevo');
+        $robot->step while $robot->is_running;
+        is $robot->direction, 'W';
+    };
 
-$robot->set_grid('Karel::Grid'->new(x => 1, y => 1), 1, 1, 'N');
+    it 'learns Czech commands' => sub {
+        $robot->learn($COMMAND_RIGHT);
+        $robot->run('vpravo');
+        $robot->step while $robot->is_running;
+        is $robot->direction, 'E';
+    };
 
-$robot->run('vlevo');
-$robot->step while $robot->is_running;
-is($robot->direction, 'W', 'cz left');
+    it 'runs a complex Czech command' => sub {
+        $robot->learn($COMMAND_RIGHT);
+        $robot->run('opakuj 2 x vpravo hotovo');
+        $robot->step while $robot->is_running;
+        is $robot->direction, 'S';
+    };
 
-$robot->run('vpravo');
-$robot->step while $robot->is_running;
-is($robot->direction, 'N', 'learned cz right');
+    it 'understands winds' => sub {
+        $robot->learn($COMMAND_RIGHT
+                      . ' příkaz na-jih'
+                      . ' dokud není jih vpravo na-jih hotovo konec');
+        $robot->run('na-jih');
+        my $directions = q();
+        while ($robot->is_running) {
+            $robot->step;
+            $directions .= $robot->direction;
+        }
+        $directions =~ tr///cs;
+        is $directions, 'NWSENWS';
+    };
+};
 
-$robot->run('opakuj 2 x vpravo hotovo');
-$robot->step while $robot->is_running;
-is($robot->direction, 'S', 'composed cz');
-
-$robot->learn('příkaz na-sever dokud není sever vpravo na-sever hotovo konec');
-$robot->run('na-sever');
-my $directions;
-while ($robot->is_running) {
-    $robot->step;
-    $directions .= $robot->direction;
-}
-$directions =~ tr///cs;
-is($directions, 'SENWSEN', 'one and half circles');
-is($robot->direction, 'N', 'cz while not');
-
-done_testing();
+runtests();
