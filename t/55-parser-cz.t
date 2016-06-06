@@ -28,8 +28,10 @@ describe $CLASS => sub {
             };
         };
 
-        my @valid = qw( dokud kdyz opakuj vlevo krok poloz zvedni stuj
-                        alpha octothorpe space );
+        my @valid = do { no warnings 'qw';
+                         qw( dokud když opakuj vlevo krok polož zvedni
+                             stůj alpha # space )
+                       };
 
         describe 'unfinished command' => sub {
             before all => sub {
@@ -71,7 +73,7 @@ krok hotovo konec
 __EOF__
                 $expected_exception= { last_completed => 'krok',
                                        pos => [ 1, 1 + index $command, 'x' ],
-                                       expected => bag(qw( octothorpe space )),
+                                       expected => bag(do { no warnings 'qw'; qw( # space ) }),
                                    };
             };
             it_should_behave_like 'failure';

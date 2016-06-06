@@ -50,6 +50,22 @@ use namespace::clean;
     }
 }
 
+my %terminals = (
+    poloz      => 'polož',
+    stuj       => 'stůj',
+    kdyz       => 'když',
+    prikaz     => 'příkaz',
+    octothorpe => '#',
+    neni       => 'není',
+    znacka     => 'značka',
+    zed        => 'zeď',
+    vychod     => 'východ',
+    zapad      => 'západ',
+    krat       => 'krát',
+);
+$terminals{$_} = $_
+    for qw( vlevo krok hotovo jinak opakuj konec dokud zvedni je sever jih x );
+sub _terminals { \%terminals }
 
 my $dsl = << '__DSL__';
 
@@ -77,37 +93,24 @@ Command    ::= vlevo                                         action => left
              | (kdyz SC) Condition (SC) Prog (jinak SC) Prog (hotovo)
                                                              action => If
              | NewCommand                                    action => call
-Condition  ::= ('je' SC) Object                              action => ::first
-             | ('není' SC) Object                            action => negate
-Object     ::= 'značka'                                      action => object
-             | 'zeď'                                         action => object
-             | 'sever'                                       action => object
-             | 'východ'                                      action => object
-             | 'jih'                                         action => object
-             | 'západ'                                       action => object
+Condition  ::= (je SC) Object                                action => ::first
+             | (neni SC) Object                              action => negate
+Object     ::= znacka                                        action => object
+             | zed                                           action => object
+             | sever                                         action => object
+             | vychod                                        action => object
+             | jih                                           action => object
+             | zapad                                         action => object
 Num        ::= non_zero                                      action => ::first
              | non_zero digits                               action => concat
-Times      ::= 'krát'
-             | 'x'
+Times      ::= krat
+             | x
 Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
 SCMaybe    ::= SpComm*
 SpComm     ::= Comment
             || space
 
-vlevo      ~ 'vlevo'
-krok       ~ 'krok'
-poloz      ~ 'polož'
-zvedni     ~ 'zvedni'
-stuj       ~ 'stůj'
-konec      ~ 'konec'
-dokud      ~ 'dokud'
-kdyz       ~ 'kdyz'
-jinak      ~ 'jinak'
-opakuj     ~ 'opakuj'
-prikaz     ~ 'příkaz'
-hotovo     ~ 'hotovo'
-octothorpe ~ '#'
 alpha      ~ [[:lower:]]
 valid_name ~ [-[:lower:]_0-9]+
 non_zero   ~ [1-9]
@@ -117,6 +120,9 @@ non_lf     ~ [^\n]*
 lf         ~ [\n]
 
 __DSL__
+
+$dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
+
 
 has '+_dsl' => ( is      => 'ro',
                  default => $dsl,

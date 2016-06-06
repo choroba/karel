@@ -47,6 +47,17 @@ use namespace::clean;
 
 }
 
+my %terminals = (
+    octothorpe => '#',
+    drop_mark  => 'drop-mark',
+    pick_mark  => 'pick-mark',
+);
+
+$terminals{$_} = $_
+    for qw( command left forward stop repeat while if else end done
+            wall mark there a facing not North East South West x times
+            s is isn t no );
+
 
 my $dsl = << '__DSL__';
 
@@ -74,52 +85,40 @@ Command    ::= left                                          action => left
              | (if SC) Condition (SC) Prog (else SC) Prog (done)
                                                              action => If
              | NewCommand                                    action => call
-Condition  ::= ('there' q 's' SC 'a' SC) Covering            action => ::first
+Condition  ::= (there quote s SC a SC) Covering              action => ::first
              | (Negation SC) Covering                        action => negate
-             | ('facing' SC) Wind                            action => ::first
-             | ('not' SC 'facing' SC) Wind                   action => negate
-Negation   ::= ('there' SC 'isn' q 't' SC 'a')
-             | ('there' SC 'is' SC 'no')
-             | ('there' q 's' SC 'no')
-Covering   ::= 'mark'                                        action => first_ch
-             | 'wall'                                        action => first_ch
-Wind       ::= 'North'                                       action => first_ch
-             | 'East'                                        action => first_ch
-             | 'South'                                       action => first_ch
-             | 'West'                                        action => first_ch
+             | (facing SC) Wind                              action => ::first
+             | (not SC facing SC) Wind                       action => negate
+Negation   ::= (there SC isn quote t SC a)
+             | (there SC is SC no)
+             | (there quote s SC no)
+Covering   ::= mark                                          action => first_ch
+             | wall                                          action => first_ch
+Wind       ::= North                                         action => first_ch
+             | East                                          action => first_ch
+             | South                                         action => first_ch
+             | West                                          action => first_ch
 Num        ::= non_zero                                      action => ::first
              | non_zero digits                               action => concat
-Times      ::= 'times'
-             | 'x'
+Times      ::= times
+             | x
 Comment    ::= (octothorpe non_lf lf)
 SC         ::= SpComm+
 SCMaybe    ::= SpComm*
 SpComm     ::= Comment
             || space
 
-command ~ 'command'
-left ~ 'left'
-forward ~ 'forward'
-drop_mark ~ 'drop-mark'
-pick_mark ~ 'pick-mark'
-stop ~ 'stop'
-repeat ~ 'repeat'
-while ~ 'while'
-if ~ 'if'
-else ~ 'else'
-end ~ 'end'
-octothorpe ~ '#'
-done       ~ 'done'
 alpha      ~ [a-z]
 valid_name ~ [-a-z_0-9]+
 non_zero   ~ [1-9]
 digits     ~ [0-9]+
 space      ~ [\s]+
-q          ~ [']
+quote      ~ [']
 non_lf     ~ [^\n]*
 lf         ~ [\n]
 
 __DSL__
+$dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
 
 
 has parser => ( is => 'ro' );
@@ -133,6 +132,13 @@ has _grammar => ( is => 'lazy' );
 has action_class => ( is => 'ro',
                       default => 'Karel::Parser::Actions',
                     );
+
+sub _terminals { \%terminals }
+
+sub terminals {
+    my $self = shift;
+    return map $self->_terminals->{$_} // $_, @_
+}
 
 sub _build__grammar {
     my ($self) = @_;
@@ -174,7 +180,7 @@ sub parse {
     my $value = $recce->value;
     if ($line || ! $value) {
         my ($from, $length) = $recce->last_completed('Command');
-        my @expected = @{ $recce->terminals_expected };
+        my @expected = $self->terminals(@{ $recce->terminals_expected });
         my $E = bless { expected => \@expected }, ref($self) . '::Exception';
         my $last = $recce->substring($from, $length) if defined $from;
         $E->{last_completed} = $last if $last;

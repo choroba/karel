@@ -14,6 +14,26 @@ describe 'Karel::Parser' => sub {
 
 describe 'Karel::Robot with Karel::Robot' => sub {
 
+    my $WHILE_LOOP = << '__EOF__';
+command test
+while not facing West
+    left
+done
+end
+__EOF__
+
+    my $NESTED_IF = << '__EOF__';
+command to-north
+    repeat 3 x
+        if not facing North
+            right
+        else
+            stop
+        done
+    done
+end
+__EOF__
+
     my ($r, $p);
     before each => sub {
         $r = 'Karel::Robot'->new;
@@ -58,13 +78,7 @@ describe 'Karel::Robot with Karel::Robot' => sub {
 
         describe 'while loop' => sub {
             before all => sub {
-                $command = << '__EOF__';
-command test
-while not facing West
-    left
-done
-end
-__EOF__
+                $command = $WHILE_LOOP;
             };
             it_should_behave_like 'learned';
         };
@@ -72,13 +86,7 @@ __EOF__
 
     describe 'unknown' => sub {
         it 'is propagated' => sub {
-            my $command = << '__EOF__';
-command test
-while not facing West
-    right
-done
-end
-__EOF__
+            my $command = 'command test while not facing West right done end';
             my ($parsed, $unknown) = $p->parse($command);
             cmp_deeply $unknown, { right => 1 };
 
@@ -88,13 +96,8 @@ __EOF__
 
     describe 'negation' => sub {
         it 'runs' => sub {
-            my ($to_wall) = $p->parse(<< '__EOF__');
-command to-wall
-while there isn't a wall
-    forward
-done
-end
-__EOF__
+            my ($to_wall)= $p->parse(
+                "command to-wall while there isn't a wall forward done end");
 
             $r->_learn(%$to_wall);
             $r->_run([ ['c', 'to-wall'] ]);
@@ -110,17 +113,7 @@ __EOF__
         it 'runs' => sub {
             $r->_learn(
                 %{ ($p->parse('command right repeat 3 x left done end'))[0] });
-            my ($parse, $unknown) = $p->parse(<< '__EOF__');
-command to-north
-    repeat 3 x
-        if not facing North
-            right
-        else
-            stop
-        done
-    done
-end
-__EOF__
+            my ($parse, $unknown) = $p->parse($NESTED_IF);
 
             my ($command_name, $command_def) = %$parse;
             $r->_learn($command_name, $command_def);
@@ -207,51 +200,102 @@ __EOF__
 
 describe 'failures' => sub {
 
-        my @valid = qw( alpha left forward drop_mark pick_mark stop
-                        repeat while if octothorpe space );
+    my @valid = do { no warnings 'qw';
+                     qw( alpha left forward drop-mark pick-mark stop
+                         repeat while if # space )
+                 };
 
-        my ($E, $command, $expected_exception);
-        shared_examples_for 'failure' => sub {
-            it fails => sub {
-                my $p = 'Karel::Parser'->new;
-                trap { $p->parse($command) };
-                $E = $trap->die;
-                isa_ok $E, 'Karel::Parser::Exception';
-                cmp_deeply $E, noclass($expected_exception);
-            };
-        };
-
-        describe 'unfinished body' => sub {
-            before all => sub {
-                $command = << '__EOF__';
-command wrong
-while there's a wall
-  forward
-__EOF__
-
-                $expected_exception = { last_completed => 'forward',
-                                        expected => bag(@valid, 'done'),
-                                        pos => [ 3, 11 ],
-                                    };
-            };
-            it_should_behave_like 'failure';
-        };
-
-        describe 'missing end' => sub {
-            before all => sub {
-                $command = << '__EOF__';
-command wrong
-while there's a wall
-  forward
-done
-__EOF__
-                $expected_exception = { last_completed => re(qr/while .* done/xs),
-                                        expected => bag(@valid, 'end'),
-                                        pos => [ 4, 6 ],
-                                    };
-            };
-            it_should_behave_like 'failure';
+    my ($E, $command, $expected_exception);
+    shared_examples_for 'failure' => sub {
+        it fails => sub {
+            my $p = 'Karel::Parser'->new;
+            trap { $p->parse($command) };
+            $E = $trap->die;
+            isa_ok $E, 'Karel::Parser::Exception';
+            $expected_exception->{pos} //= [ 1, 1 + length $command ];
+            cmp_deeply $E, noclass($expected_exception);
         };
     };
+
+    describe 'unfinished body' => sub {
+        before all => sub {
+            $command = << '__EOF__';
+command wrong
+while there's a wall
+  forward
+__EOF__
+
+            $expected_exception = { last_completed => 'forward',
+                                    expected => bag(@valid, 'done'),
+                                    pos => [ 3, 11 ],
+                                };
+        };
+        it_should_behave_like 'failure';
+    };
+
+    describe 'missing end' => sub {
+        before all => sub {
+            $command = "command wrong while there's a wall forward done\n";
+            $expected_exception = { last_completed => re(qr/while .* done/xs),
+                                    expected => bag(@valid, 'end'),
+                                };
+        };
+        it_should_behave_like 'failure';
+    };
+
+    describe 'missing times' => sub {
+        before all => sub {
+            $command = 'command wrong repeat 3 ';
+            $expected_exception = {
+                expected => bag(do {
+                    no warnings 'qw';
+                    qw( times x space # )
+                }),
+            };
+        };
+        it_should_behave_like 'failure';
+    };
+
+    describe 'missing condition' => sub {
+        before all => sub {
+            $command = 'command wrong while ';
+            $expected_exception = {
+                expected => bag(do {
+                    no warnings 'qw';
+                    qw( facing not there space # )
+                }),
+            };
+        };
+        it_should_behave_like 'failure';
+    };
+
+    describe 'missing verb' => sub {
+        before all => sub {
+            $command = 'command wrong if there';
+            $expected_exception = {
+                expected => bag(do {
+                    no warnings 'qw';
+                    qw( quote space # )
+                }),
+            };
+        };
+        it_should_behave_like 'failure';
+    };
+
+    describe 'missing verb' => sub {
+        before all => sub {
+            $command = 'command wrong if there ';
+            $expected_exception = {
+                expected => bag(do {
+                    no warnings 'qw';
+                    qw( is isn space # )
+                }),
+            };
+        };
+        it_should_behave_like 'failure';
+    };
+
+
+};
 
 runtests();
