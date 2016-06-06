@@ -123,15 +123,11 @@ $dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
 
 has parser => ( is => 'ro' );
 
-has _dsl => ( is      => 'ro',
-              default => $dsl,
-            );
-
 has _grammar => ( is => 'lazy' );
 
-has action_class => ( is => 'ro',
-                      default => 'Karel::Parser::Actions',
-                    );
+sub _dsl { $dsl }
+
+sub action_class { 'Karel::Parser::Actions' }
 
 sub _terminals { \%terminals }
 

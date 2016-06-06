@@ -123,13 +123,8 @@ __DSL__
 
 $dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
 
+around '_dsl' => sub { $dsl };
 
-has '+_dsl' => ( is      => 'ro',
-                 default => $dsl,
-               );
-
-has '+action_class' => ( is => 'ro',
-                         default => 'Karel::Parser::Czech::Actions',
-                       );
+sub action_class { 'Karel::Parser::Czech::Actions' }
 
 __PACKAGE__
