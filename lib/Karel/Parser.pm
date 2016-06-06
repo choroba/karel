@@ -156,6 +156,30 @@ command. The robot's C<run> function uses it to parse commands you
 run, as simple C<[[ 'c', $command ]]> doesn't work for core commands
 (C<left>, C<forward>, etc.).
 
+If there's an error, an exception is thrown. It's a hash ref with the
+following keys:
+
+=over 4
+
+=item -
+
+B<expected>: lists the available terminals. There are several special
+values: C<space> (white space), C<alpha> (letter starting a word),
+C<lf> newline, C<non_lf> (anything but a newline), C<valid_name>
+(character that can occur in a command name starting from the 2nd
+position: a letter, digit, underscore, or a dash), C<quote> (single
+quote), C<non_zero> (1-9).
+
+=item -
+
+B<last_completed>: the last successfully parsed command.
+
+=item -
+
+B<pos>: position (line, column) where the parsing stopped.
+
+=back
+
 =cut
 
 sub parse {
