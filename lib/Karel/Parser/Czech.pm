@@ -64,7 +64,7 @@ my %terminals = (
     krat       => 'krát',
 );
 $terminals{$_} = $_
-    for qw( vlevo krok hotovo jinak opakuj konec dokud zvedni je sever jih x );
+    for qw( vlevo krok hotovo jinak opakuj konec dokud zvedni je sever jih );
 sub _terminals { \%terminals }
 
 my $dsl = << '__DSL__';
@@ -118,6 +118,7 @@ digits     ~ [0-9]+
 space      ~ [\s]+
 non_lf     ~ [^\n]*
 lf         ~ [\n]
+x          ~ [x×]
 
 __DSL__
 
