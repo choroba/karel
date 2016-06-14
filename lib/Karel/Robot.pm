@@ -106,6 +106,7 @@ sub load_grid {
     croak "Unknown type $type" unless $open;
     $open->();
 
+    local $/ = "\n";
     my $header = <$IN>;
     croak 'Invalid format'
         unless $header =~ /^\# \s* karel \s+ (v[0-9]+\.[0-9]{2}) \s+ ([0-9]+) \s+ ([0-9]+)/x;
