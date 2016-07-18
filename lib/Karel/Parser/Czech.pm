@@ -69,7 +69,7 @@ sub _terminals { \%terminals }
 
 my $dsl = << '__DSL__';
 
-:default ::= action => []
+:default ::= action => ::undef
 lexeme default = latm => 1
 
 START      ::= Defs                                          action => ::first
