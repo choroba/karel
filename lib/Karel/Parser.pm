@@ -26,14 +26,16 @@ use namespace::clean;
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
-    sub left     { ['l'] }
-    sub forward  { ['f'] }
-    sub pick     { ['p'] }
-    sub drop     { ['d'] }
-    sub stop     { ['q'] }
-    sub repeat   { ['r', $_[1], $_[2] ] }
-    sub While    { ['w', $_[1], $_[2] ] }
-    sub If       { ['i', $_[1], $_[2], $_[3]] }
+    sub left     { [ l => $_[1] ] }
+    sub forward  { [ f => $_[1] ] }
+    sub pick     { [ p => $_[1] ] }
+    sub drop     { [ d => $_[1] ] }
+    sub stop     { [ q => $_[1] ] }
+    sub repeat   { complex_command( r => @_ ) }
+    sub While    { complex_command( w => @_ ) }
+    sub If       { [ i => @{ $_[1] }[ 0, 1 ],
+                     ref $_[1][2] ? $_[1][2] : [['x']], # else
+                     [ @{ $_[1] }[ -2, -1 ] ] ] }
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
     sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
@@ -43,6 +45,11 @@ use namespace::clean;
         my %h;
         $h{ $_->[0] }= $_->[1] for @_;
         return [ \%h, $unknown ]
+    }
+
+    sub complex_command {
+        my $cmd = shift;
+        [ $cmd => @{ $_[1] }[ 0, 1 ],  [ @{ $_[1] }[ 2, 3 ] ] ]
     }
 
 }
@@ -73,18 +80,25 @@ Def        ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
 Commands   ::= Command+  separator => SC                     action => list
-Command    ::= left                                          action => left
-             | forward                                       action => forward
-             | drop_mark                                     action => drop
-             | pick_mark                                     action => pick
-             | stop                                          action => stop
-             | (repeat SC) Num (SC Times SC) Prog (SC done)
-                                                             action => repeat
-             | (while SC) Condition (SC) Prog (done)         action => While
-             | (if SC) Condition (SC) Prog (done)            action => If
-             | (if SC) Condition (SC) Prog (else SC) Prog (done)
-                                                             action => If
+Command    ::= Left                                          action => left
+             | Forward                                       action => forward
+             | Drop_mark                                     action => drop
+             | Pick_mark                                     action => pick
+             | Stop                                          action => stop
+             | Repeat                                        action => repeat
+             | While                                         action => While
+             | If                                            action => If
              | NewCommand                                    action => call
+Left       ::= left                                          action => [ start, length ]
+Forward    ::= forward                                       action => [ start, length ]
+Drop_mark  ::= drop_mark                                     action => [ start, length ]
+Pick_mark  ::= pick_mark                                     action => [ start, length ]
+Stop       ::= stop                                          action => [ start, length ]
+Repeat     ::= (repeat SC) Num (SC Times SC) Prog (SC done)  action => [ values, start, length ]
+While      ::= (while SC) Condition (SC) Prog (done)         action => [ values, start, length ]
+If         ::= (if SC) Condition (SC) Prog (done)            action => [ values, start, length ]
+             | (if SC) Condition (SC) Prog (SC else SC) Prog (done)
+                                                             action => [ values, start, length ]
 Condition  ::= (there quote s SC a SC) Covering              action => ::first
              | (Negation SC) Covering                        action => negate
              | (facing SC) Wind                              action => ::first

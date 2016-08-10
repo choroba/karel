@@ -76,23 +76,33 @@ START      ::= Defs                                          action => ::first
              | ('run' SC) Command                            action => [value]
 
 Defs       ::= Def+  separator => SC                         action => defs
-Def        ::= (SCMaybe) (< prikaz >) (SC) NewCommand (SC) Prog (SC) (konec)
+Def        ::= (SCMaybe) (prikaz) (SC) NewCommand (SC) Prog (SC) (konec)
                                                              action => def
 NewCommand ::= alpha valid_name                              action => concat
 Prog       ::= Commands                                      action => ::first
 Commands   ::= Command+  separator => SC                     action => list
-Command    ::= vlevo                                         action => left
-             | krok                                          action => forward
-             | poloz                                         action => drop
-             | zvedni                                        action => pick
-             | stuj                                          action => stop
-             | (opakuj SC) Num (SC Times SC) Prog (SC hotovo)
-                                                             action => repeat
-             | (dokud SC) Condition (SC) Prog (hotovo)       action => While
-             | (kdyz SC) Condition (SC) Prog (hotovo)        action => If
-             | (kdyz SC) Condition (SC) Prog (jinak SC) Prog (hotovo)
-                                                             action => If
+Command    ::= Vlevo                                         action => left
+             | Krok                                          action => forward
+             | Poloz                                         action => drop
+             | Zvedni                                        action => pick
+             | Stuj                                          action => stop
+             | Opakuj                                        action => repeat
+             | Dokud                                         action => While
+             | Kdyz                                          action => If
              | NewCommand                                    action => call
+Vlevo      ::= vlevo                                         action => [ start, length ]
+Krok       ::= krok                                          action => [ start, length ]
+Poloz      ::= poloz                                         action => [ start, length ]
+Zvedni     ::= zvedni                                        action => [ start, length ]
+Stuj       ::= stuj                                          action => [ start, length ]
+Opakuj     ::= (opakuj SC) Num (SC Times SC) Prog (SC hotovo)
+                                                             action => [ values, start, length ]
+Dokud      ::= (dokud SC) Condition (SC) Prog (hotovo)
+                                                             action => [ values, start, length ]
+Kdyz       ::= (kdyz SC) Condition (SC) Prog (hotovo)
+                                                             action => [ values, start, length ]
+             | (kdyz SC) Condition (SC) Prog (SC jinak SC) Prog (hotovo)
+                                                             action => [ values, start, length ]
 Condition  ::= (je SC) Object                                action => ::first
              | (neni SC) Object                              action => negate
 Object     ::= znacka                                        action => object

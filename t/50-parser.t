@@ -193,6 +193,11 @@ __EOF__
                 (my $code2 = $code) =~ s/#.*\n?//g;
                 $code2
             });
+
+            # Different position in the input string.
+            $_ = ignore for $without_comment->{run}[0][2][0][1],
+                            $without_comment->{run}[0][3];
+
             cmp_deeply $with_comment, $without_comment;
         };
     };
