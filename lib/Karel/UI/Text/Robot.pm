@@ -2,7 +2,7 @@ package Karel::UI::Text::Robot;
 
 =head1 NAME
 
-Robot
+Karel::UI::Text::Robot
 
 =head1 DESCRIPTION
 
