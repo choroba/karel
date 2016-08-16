@@ -124,8 +124,8 @@ __DSL__
 
 $dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
 
-around '_dsl' => sub { $dsl };
+around _dsl => sub { $dsl };
 
-sub action_class { 'Karel::Parser::Czech::Actions' }
+around _action_class => sub { 'Karel::Parser::Czech::Actions' };
 
 __PACKAGE__

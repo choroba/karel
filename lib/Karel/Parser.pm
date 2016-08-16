@@ -127,7 +127,7 @@ has _grammar => ( is => 'lazy' );
 
 sub _dsl { $dsl }
 
-sub action_class { 'Karel::Parser::Actions' }
+sub _action_class { 'Karel::Parser::Actions' }
 
 sub _terminals { \%terminals }
 
@@ -193,7 +193,7 @@ sub parse {
     my ($self, $input) = @_;
     my $recce = 'Marpa::R2::Scanless::R'
                 ->new({ grammar           => $self->_grammar,
-                        semantics_package => $self->action_class,
+                        semantics_package => $self->_action_class,
                       });
 
     my ($line, $column);
