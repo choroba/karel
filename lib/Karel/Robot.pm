@@ -27,7 +27,8 @@ use namespace::clean;
 
 =item my $robot = 'Karel::Robot'->new
 
-The constructor. It takes no parameters.
+The constructor. It can take one parameter: C<parser>. Its value
+should be a parser object, by default an instance of C<Karel::Parser>.
 
 =item $robot->set_grid($grid, $x, $y, $direction)
 

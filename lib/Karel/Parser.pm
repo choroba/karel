@@ -131,6 +131,13 @@ sub action_class { 'Karel::Parser::Actions' }
 
 sub _terminals { \%terminals }
 
+=item my @terminal_strings = $self->terminals(@terminals)
+
+Returns the strings correscponding to the given terminal symbols.
+E.g., C<< $self->terminals('octothorpe') >> returns C<#>.
+
+=cut
+
 sub terminals {
     my $self = shift;
     return map $self->_terminals->{$_} // $_, @_
