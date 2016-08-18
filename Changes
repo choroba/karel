@@ -1,5 +1,9 @@
 Revision history for Karel
 
+0.02    2016-08-18
+
+        Fix dependencies in Makefile.PL (List::Util, Test::Exception).
+
 0.01    2016-08-16
 
         First version, released on an unsuspecting world on the CPAN
