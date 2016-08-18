@@ -12,10 +12,11 @@ WriteMakefile(
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.010,
     CONFIGURE_REQUIRES => {
-        'ExtUtils::MakeMaker' => 0,
+        'ExtUtils::MakeMaker' => '6.64',  # TEST_REQUIRES
     },
-    BUILD_REQUIRES => {
+    TEST_REQUIRES => {
         'Test::Spec' => 0,
+        'Test::Exception' => 0,
     },
     PREREQ_PM => {
         Cwd                 => 0,
