@@ -24,7 +24,7 @@ WriteMakefile(
         'namespace::clean'  => 0,
         Clone               => 0,
         constant            => 0,
-        'List::Util'        => 0,
+        'List::Util'        => '1.33',  # any, none
         'Marpa::R2'         => 0,
         'Module::Load'      => 0,
         Carp                => 0,
