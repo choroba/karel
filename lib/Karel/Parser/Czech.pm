@@ -37,7 +37,7 @@ use namespace::clean;
 
     'Karel::Parser::Actions'->import(qw( def concat left forward pick
                                          drop stop repeat While If
-                                         negate call list defs ));
+                                         negate call list defs run ));
 
     sub object {
         { značka => 'm',
@@ -73,13 +73,15 @@ my $dsl = << '__DSL__';
 lexeme default = latm => 1
 
 START      ::= Defs                       action => ::first
-             | ('run' SC) Command         action => [value]
+             | (Run SC) Command           action => run
+Run        ::= 'run'                      action => [ values, start, length ]
 
 Defs       ::= Def+  separator => SC      action => defs
 Def        ::= Def2                       action => [ values, start, length ]
-Def2       ::= (SCMaybe) (prikaz) (SC) NewCommand (SC) Prog (SC) (konec)
+Def2       ::= (SCMaybe) (prikaz) (SC) CommandDef (SC) Prog (SC) (konec)
                                           action => def
-NewCommand ::= alpha valid_name           action => concat
+NewCommand ::= CommandDef                 action => [ values, start, length ]
+CommandDef ::= alpha valid_name           action => concat
 Prog       ::= Commands                   action => ::first
 Commands   ::= Command+  separator => SC  action => list
 Command    ::= Vlevo                      action => left

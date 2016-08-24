@@ -22,7 +22,7 @@ use namespace::clean;
 
     use parent 'Exporter';
     our @EXPORT_OK = qw{ def concat left forward pick drop stop repeat
-                         While If first_ch negate call list defs };
+                         While If first_ch negate call list defs run };
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
@@ -38,8 +38,10 @@ use namespace::clean;
                      [ @{ $_[1] }[ -2, -1 ] ] ] }
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
-    sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
+    sub call     { $_[0]{ $_[1][0] } = 1;
+                   [ 'c', $_[1][0], [ @{ $_[1] }[ 1, 2 ] ] ] }
     sub list     { [ grep defined, @_[ 1 .. $#_ ] ] }
+
     sub defs {
         my $unknown = shift;
         my %h;
@@ -47,6 +49,12 @@ use namespace::clean;
             $h{ $command->[0][0] } = [ $command->[0][1], @{ $command }[ 1, 2 ] ];
         }
         return [ \%h, $unknown ]
+    }
+
+    sub run {
+        shift;
+        $_[0][-1][0] -= length 'run ';
+        [ @_ ]
     }
 
     sub complex_command {
@@ -74,13 +82,15 @@ my $dsl = << '__DSL__';
 lexeme default = latm => 1
 
 START      ::= Defs                       action => ::first
-             | ('run' SC) Command         action => [value]
+             | (Run SC) Command           action => run
+Run        ::= 'run'                      action => [ values, start, length ]
 
 Defs       ::= Def+  separator => SC      action => defs
 Def        ::= Def2                       action => [ values, start, length ]
-Def2       ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
+Def2       ::= (SCMaybe) (command) (SC) CommandDef (SC) Prog (SC) (end)
                                           action => def
-NewCommand ::= alpha valid_name           action => concat
+NewCommand ::= CommandDef                 action => [ values, start, length ]
+CommandDef ::= alpha valid_name           action => concat
 Prog       ::= Commands                   action => ::first
 Commands   ::= Command+  separator => SC  action => list
 Command    ::= Left                       action => left
