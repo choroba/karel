@@ -139,7 +139,8 @@ describe 'Karel::Robot internally' => sub {
     it 'calls external commands' => sub {
         my $r = $robot_running_a_structure->(
             $GRID, [ [ 'c', 'right' ], ['l'] ]);
-        $r->_set_knowledge({ right => [ [ 'r', 3, [ ['l'] ] ] ] });
+        $r->_set_knowledge({ right => [ [ [ 'r', 3, [ ['l'] ] ] ],
+                                        'definition']  });
         count_steps($r);
         is $r->direction, 'N';
     };

@@ -215,8 +215,10 @@ sub _pop_stack {
 }
 
 sub _push_stack {
-    my ($self, $commands) = @_;
-    unshift @{ $self->_stack }, [ clone($commands), 0 ];
+    my ($self, $commands, $current) = @_;
+    # $current = $self->_stack->[1][-1]
+    #     unless $current;
+    unshift @{ $self->_stack }, [ clone($commands), 0, $current ];
 }
 
 
@@ -236,9 +238,25 @@ sub _stack_previous_index {
     shift->_stack->[1][1]
 }
 
+sub current {
+    my ($self) = @_;
+    my $current = $self->_stacked->[-1] // q();
+    my ($from, $length) = @{ $self->_stack_command->[-1] };
+    print STDERR "$from, $length\n";
+    my $known = $self->knowledge->{ $current // q() };
+    my $src = ref $current ? $current->[0]
+            : $known       ? $known->[1]
+            : $current;
+    if ($from + $length > length $src) {
+        $from = 0;
+        $length = length $src;
+    }
+    return $src, $from, $length
+}
+
 sub _run {
-    my ($self, $prog) = @_;
-    $self->_set__stack([ [$prog, 0] ]);
+    my ($self, $prog, $current) = @_;
+    $self->_set__stack([ [ $prog, 0, [ $current ] ] ]);
 }
 
 =item $robot->run($command_name)
@@ -250,7 +268,7 @@ Run the given command.
 sub run {
     my ($self, $command) = @_;
     my $parsed = $self->parser->parse("run $command");
-    $self->_run($$parsed);
+    $self->_run($$parsed, $command);
 }
 
 =item $robot->forward
@@ -280,7 +298,7 @@ sub repeat {
     my ($self, $count, $commands) = @_;
     if ($count) {
         $self->_stack_command->[1] = $count - 1;
-        $self->_push_stack($commands);
+        $self->_push_stack($commands);#, $self->_stack->[1][-1]);
         return CONTINUE
 
     } else {
@@ -387,7 +405,7 @@ sub call {
     my ($self, $command_name) = @_;
     my $commands = $self->knows($command_name);
     if ($commands) {
-        $self->_push_stack($commands);
+        $self->_push_stack($commands, $command_name);
     } else {
         croak "Unknown command $command_name.";
     }

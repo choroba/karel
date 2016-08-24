@@ -182,14 +182,14 @@ otherwise.
 
 sub knows {
     my ($self, $command) = @_;
-    $self->knowledge->{$command}
+    $self->knowledge->{$command}[0]
 }
 
 sub _learn {
     my ($self, $command, $parsed, $code) = @_;
     my ($prog, $from, $to) = @$parsed;
     my $knowledge = $self->knowledge;
-    $knowledge->{$command} = $prog;
+    $knowledge->{$command} = [ $prog, $code ]; # TODO: No leaks!
     $self->_set_knowledge($knowledge);
 }
 
