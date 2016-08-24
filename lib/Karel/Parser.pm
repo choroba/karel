@@ -43,7 +43,9 @@ use namespace::clean;
     sub defs {
         my $unknown = shift;
         my %h;
-        $h{ $_->[0] }= $_->[1] for @_;
+        for my $command (@_) {
+            $h{ $command->[0][0] } = [ $command->[0][1], @{ $command }[ 1, 2 ] ];
+        }
         return [ \%h, $unknown ]
     }
 
@@ -75,7 +77,8 @@ START      ::= Defs                       action => ::first
              | ('run' SC) Command         action => [value]
 
 Defs       ::= Def+  separator => SC      action => defs
-Def        ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
+Def        ::= Def2                       action => [ values, start, length ]
+Def2       ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
                                           action => def
 NewCommand ::= alpha valid_name           action => concat
 Prog       ::= Commands                   action => ::first
@@ -171,7 +174,7 @@ sub _build__grammar {
 
 C<$new_commands> is a hash that you can use to teach the robot:
 
-  $robot->_learn($_, $new_commands->{$_}) for keys %$new_commands;
+  $robot->_learn($_, $new_commands->{$_}, $definition) for keys %$new_commands;
 
 C<$unknwon> is a hash whose keys are all the non-basic commands needed
 to run the parsed programs.

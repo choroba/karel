@@ -186,7 +186,8 @@ sub knows {
 }
 
 sub _learn {
-    my ($self, $command, $prog) = @_;
+    my ($self, $command, $parsed, $code) = @_;
+    my ($prog, $from, $to) = @$parsed;
     my $knowledge = $self->knowledge;
     $knowledge->{$command} = $prog;
     $self->_set_knowledge($knowledge);
@@ -202,17 +203,13 @@ unknown commands.
 sub learn {
     my ($self, $prog) = @_;
     my ($commands, $unknown) = $self->parser->parse($prog);
-    $self->_learn($_, $commands->{$_}) for keys %$commands;
+    $self->_learn($_, $commands->{$_}, $prog) for keys %$commands;
     for my $command (keys %$unknown) {
         croak "Dont' know $command" unless $self->knows($command);
     }
 }
 
-has knowledge => (
-                   is => 'rwp'
-                 );
-
-
+has knowledge => ( is => 'rwp' );
 
 =back
 

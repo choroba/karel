@@ -48,7 +48,7 @@ __EOF__
         shared_examples_for 'learned' => sub {
             before each => sub {
                 my ($parsed) = $p->parse($command);
-                $r->_learn(%$parsed);
+                $r->_learn(%$parsed, $command);
             };
 
             it 'learns the command' => sub {
@@ -90,16 +90,16 @@ __EOF__
             my ($parsed, $unknown) = $p->parse($command);
             cmp_deeply $unknown, { right => 1 };
 
-            $r->_learn(%$parsed);
+            $r->_learn(%$parsed, $command);
         };
     };
 
     describe 'negation' => sub {
         it 'runs' => sub {
-            my ($to_wall)= $p->parse(
-                "command to-wall while there isn't a wall forward done end");
+            my ($to_wall)= $p->parse( my $command
+                = "command to-wall while there isn't a wall forward done end");
 
-            $r->_learn(%$to_wall);
+            $r->_learn(%$to_wall, $command);
             $r->_run([ ['c', 'to-wall'] ]);
             $r->step while $r->is_running;
 
@@ -111,12 +111,12 @@ __EOF__
 
     describe 'nested if with unknown' => sub {
         it 'runs' => sub {
-            $r->_learn(
-                %{ ($p->parse('command right repeat 3 x left done end'))[0] });
+            my $command = 'command right repeat 3 x left done end';
+            $r->_learn(%{ ($p->parse($command))[0] }, $command);
             my ($parse, $unknown) = $p->parse($NESTED_IF);
 
             my ($command_name, $command_def) = %$parse;
-            $r->_learn($command_name, $command_def);
+            $r->_learn($command_name, $command_def, $command);
             cmp_deeply $unknown, { right => 1 };
             cmp_methods $r, [ map { [ 'knows', $_ ] => bool(1) }
                               qw( right to-north )];
@@ -131,7 +131,7 @@ __EOF__
 
         it 'runs' => sub {
             $r->set_grid('Karel::Grid'->new( x => 1, y => 1 ), 1, 1, 'N');
-            my ($d9_ss, $unknown) =  $p->parse(<< '__EOF__');
+            my $command = << '__EOF__';
 command safe-step
     if there's no wall
         forward
@@ -150,8 +150,9 @@ command drop9
 end
 __EOF__
 
+            my ($d9_ss, $unknown) =  $p->parse($command);
             for my $name (keys %$d9_ss) {
-                $r->_learn($name, $d9_ss->{$name});
+                $r->_learn($name, $d9_ss->{$name}, $command);
             }
 
             cmp_deeply $unknown, {};
@@ -195,8 +196,9 @@ __EOF__
             });
 
             # Different position in the input string.
-            $_ = ignore for $without_comment->{run}[0][2][0][1],
-                            $without_comment->{run}[0][3];
+            $_ = ignore for $without_comment->{run}[0][0][2][0][1],
+                            $without_comment->{run}[0][0][3],
+                            @{ $without_comment->{run} }[ 1, 2 ];
 
             cmp_deeply $with_comment, $without_comment;
         };

@@ -76,7 +76,8 @@ START      ::= Defs                       action => ::first
              | ('run' SC) Command         action => [value]
 
 Defs       ::= Def+  separator => SC      action => defs
-Def        ::= (SCMaybe) (prikaz) (SC) NewCommand (SC) Prog (SC) (konec)
+Def        ::= Def2                       action => [ values, start, length ]
+Def2       ::= (SCMaybe) (prikaz) (SC) NewCommand (SC) Prog (SC) (konec)
                                           action => def
 NewCommand ::= alpha valid_name           action => concat
 Prog       ::= Commands                   action => ::first

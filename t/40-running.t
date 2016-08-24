@@ -53,7 +53,7 @@ describe 'Karel::Robot internally' => sub {
     my $robot_running_a_structure = sub {
         my ($grid, $struct) = @_;
         my $r = 'Karel::Robot'->new;
-        $r->load_grid( string => $grid ) if $grid;
+        $r->load_grid( string => $grid );
         $r->_run($struct);
         return $r
     };
