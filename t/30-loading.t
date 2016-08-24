@@ -53,7 +53,7 @@ describe 'Karel::Robot::load_grid' => sub {
 
     it 'validates the starting position' => sub {
         throws_ok { $r->load_grid( file => 't/invalid.kg' ) }
-            qr/Wall at starting position/;
+            qr/Wall at starting position/, q();
     };
 
     it 'reverts to backup after a failure' => sub {
@@ -65,7 +65,7 @@ describe 'Karel::Robot::load_grid' => sub {
     it 'rejects misplaced outer walls' => sub {
         throws_ok {
             $r->load_grid( string => $INVALID_GRID_MISPLACED_OUTER_WALL )
-        } qr/Unknown or invalid grid character 'W'/;
+        } qr/Unknown or invalid grid character 'W'/, q();
     };
 
 };

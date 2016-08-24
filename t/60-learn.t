@@ -25,7 +25,7 @@ __CMD__
         };
 
         it "can't run commands" => sub {
-            throws_ok { $r->run('right') } qr/method "run"/;
+            throws_ok { $r->run('right') } qr/method "run"/, q();
         };
     };
 
