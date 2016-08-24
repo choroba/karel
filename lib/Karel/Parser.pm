@@ -71,49 +71,53 @@ my $dsl = << '__DSL__';
 :default ::= action => ::undef
 lexeme default = latm => 1
 
-START      ::= Defs                                          action => ::first
-             | ('run' SC) Command                            action => [value]
+START      ::= Defs                       action => ::first
+             | ('run' SC) Command         action => [value]
 
-Defs       ::= Def+  separator => SC                         action => defs
+Defs       ::= Def+  separator => SC      action => defs
 Def        ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
-                                                             action => def
-NewCommand ::= alpha valid_name                              action => concat
-Prog       ::= Commands                                      action => ::first
-Commands   ::= Command+  separator => SC                     action => list
-Command    ::= Left                                          action => left
-             | Forward                                       action => forward
-             | Drop_mark                                     action => drop
-             | Pick_mark                                     action => pick
-             | Stop                                          action => stop
-             | Repeat                                        action => repeat
-             | While                                         action => While
-             | If                                            action => If
-             | NewCommand                                    action => call
-Left       ::= left                                          action => [ start, length ]
-Forward    ::= forward                                       action => [ start, length ]
-Drop_mark  ::= drop_mark                                     action => [ start, length ]
-Pick_mark  ::= pick_mark                                     action => [ start, length ]
-Stop       ::= stop                                          action => [ start, length ]
-Repeat     ::= (repeat SC) Num (SC Times SC) Prog (SC done)  action => [ values, start, length ]
-While      ::= (while SC) Condition (SC) Prog (done)         action => [ values, start, length ]
-If         ::= (if SC) Condition (SC) Prog (done)            action => [ values, start, length ]
+                                          action => def
+NewCommand ::= alpha valid_name           action => concat
+Prog       ::= Commands                   action => ::first
+Commands   ::= Command+  separator => SC  action => list
+Command    ::= Left                       action => left
+             | Forward                    action => forward
+             | Drop_mark                  action => drop
+             | Pick_mark                  action => pick
+             | Stop                       action => stop
+             | Repeat                     action => repeat
+             | While                      action => While
+             | If                         action => If
+             | NewCommand                 action => call
+Left       ::= left                       action => [ start, length ]
+Forward    ::= forward                    action => [ start, length ]
+Drop_mark  ::= drop_mark                  action => [ start, length ]
+Pick_mark  ::= pick_mark                  action => [ start, length ]
+Stop       ::= stop                       action => [ start, length ]
+Repeat     ::= (repeat SC) Num (SC Times SC) Prog (SC done)
+                                          action => [ values, start, length ]
+While      ::= (while SC) Condition (SC) Prog (done)
+                                          action => [ values, start, length ]
+If         ::= (if SC) Condition (SC) Prog (done)
+                                          action => [ values, start, length ]
              | (if SC) Condition (SC) Prog (SC else SC) Prog (done)
-                                                             action => [ values, start, length ]
-Condition  ::= (there quote s SC a SC) Covering              action => ::first
-             | (Negation SC) Covering                        action => negate
-             | (facing SC) Wind                              action => ::first
-             | (not SC facing SC) Wind                       action => negate
+                                          action => [ values, start, length ]
+Condition  ::= (there quote s SC a SC) Covering
+                                          action => ::first
+             | (Negation SC) Covering     action => negate
+             | (facing SC) Wind           action => ::first
+             | (not SC facing SC) Wind    action => negate
 Negation   ::= (there SC isn quote t SC a)
              | (there SC is SC no)
              | (there quote s SC no)
-Covering   ::= mark                                          action => first_ch
-             | wall                                          action => first_ch
-Wind       ::= North                                         action => first_ch
-             | East                                          action => first_ch
-             | South                                         action => first_ch
-             | West                                          action => first_ch
-Num        ::= non_zero                                      action => ::first
-             | non_zero digits                               action => concat
+Covering   ::= mark                       action => first_ch
+             | wall                       action => first_ch
+Wind       ::= North                      action => first_ch
+             | East                       action => first_ch
+             | South                      action => first_ch
+             | West                       action => first_ch
+Num        ::= non_zero                   action => ::first
+             | non_zero digits            action => concat
 Times      ::= times
              | x
 Comment    ::= (octothorpe non_lf lf)
