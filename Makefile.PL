@@ -26,7 +26,7 @@ WriteMakefile(
         Clone               => 0,
         constant            => 0,
         'List::Util'        => '1.33',  # any, none
-        'Marpa::R2'         => 0,
+        'Marpa::R2'         => '2.084', # latm
         'Module::Load'      => 0,
         Carp                => 0,
         Exporter            => 0,
