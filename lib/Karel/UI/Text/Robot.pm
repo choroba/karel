@@ -109,7 +109,7 @@ sub load_grid_from_path {
     my ($robot, $path) = @_;
     $path = getcwd() unless $path;
     chdir $path;
-    my @files = grep '.' ne $_, glob ".* *";
+    my @files = grep './' ne $_, glob ".*/ */ *.kg";
     $robot->menu(undef, [ map {
                               my $f = $_;
                               [ $f => sub { my $r = shift;
@@ -148,7 +148,7 @@ sub load_commands_from_path {
     my ($robot, $path) = @_;
     $path = getcwd() unless $path;
     chdir $path;
-    my @files = grep '.' ne $_, glob ".* *";
+    my @files = grep './' ne $_, glob ".*/ */ *.krl";
     $robot->menu(undef, [ map {
                               my $f = $_;
                               [ $f => sub { my $r = shift;
