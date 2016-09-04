@@ -1,5 +1,12 @@
 Revision history for Karel
 
+0.03    2016-09-04
+
+        - Fix minimal Marpa version.
+        - Improve test output.
+        - More informative exception.
+        - Simplify the text UI.
+
 0.02    2016-08-18
 
         Fix dependencies in Makefile.PL (List::Util, Test::Exception).
