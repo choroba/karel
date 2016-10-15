@@ -216,8 +216,8 @@ sub _pop_stack {
 
 sub _push_stack {
     my ($self, $commands, $current) = @_;
-    # $current = $self->_stack->[1][-1]
-    #     unless $current;
+    $current = $self->_stack->[1][-1]
+        unless $current;
     unshift @{ $self->_stack }, [ clone($commands), 0, $current ];
 }
 
@@ -238,25 +238,34 @@ sub _stack_previous_index {
     shift->_stack->[1][1]
 }
 
+sub _stack_delay_finish {
+    my ($self) = @_;
+    $self->_stack_previous_commands
+        ->[ $self->_stack_previous_index ][0] = 'x';
+}
+
+=item $robot->current
+
+For debugging Karel programs: returns the source of the currently
+executed command, current position in the source and the length of the
+command.
+
+=cut
+
 sub current {
     my ($self) = @_;
-    my $current = $self->_stacked->[-1] // q();
-    my ($from, $length) = @{ $self->_stack_command->[-1] };
-    print STDERR "$from, $length\n";
+    my $command = (first { 'x' ne $_->[0][0][0] } @{ $self->_stack })
+               // $self->_stacked;
+    my $current = $command->[-1];
+    my ($from, $length) = @{ $command->[0][ $command->[-2] ][-1] };
     my $known = $self->knowledge->{ $current // q() };
-    my $src = ref $current ? $current->[0]
-            : $known       ? $known->[1]
-            : $current;
-    if ($from + $length > length $src) {
-        $from = 0;
-        $length = length $src;
-    }
+    my $src = ref $current ? $current->[0] : $known->[1];
     return $src, $from, $length
 }
 
 sub _run {
     my ($self, $prog, $current) = @_;
-    $self->_set__stack([ [ $prog, 0, [ $current ] ] ]);
+    $self->_set__stack([ [ $prog, 0, $current ] ]);
 }
 
 =item $robot->run($command_name)
@@ -268,7 +277,7 @@ Run the given command.
 sub run {
     my ($self, $command) = @_;
     my $parsed = $self->parser->parse("run $command");
-    $self->_run($$parsed, $command);
+    $self->_run($$parsed, [$command]);
 }
 
 =item $robot->forward
@@ -460,12 +469,9 @@ sub step {
           }
       },
       CONTINUE, sub { @_ = ($self); goto &step },
-      FINISHED_DELAYED, sub {
-          $self->_stack_previous_commands
-               ->[ $self->_stack_previous_index ][0] = 'x';
-      },
+      FINISHED_DELAYED, sub { $self->_stack_delay_finish },
       QUIT, sub { },
-    }->{ $finished }->();
+    }->{$finished}->();
 }
 
 =back

@@ -253,6 +253,13 @@ sub parse {
 }
 
 
+{   package
+        Karel::Parser::Exception;
+
+    use overload '""' => sub { use Data::Dumper; Dumper \@_ };
+
+}
+
 =back
 
 =cut
