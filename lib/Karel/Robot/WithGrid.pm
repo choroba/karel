@@ -215,8 +215,10 @@ sub _pop_stack {
 }
 
 sub _push_stack {
-    my ($self, $commands) = @_;
-    unshift @{ $self->_stack }, [ clone($commands), 0 ];
+    my ($self, $commands, $current) = @_;
+    $current = $self->_stack->[1][-1]
+        unless $current;
+    unshift @{ $self->_stack }, [ clone($commands), 0, $current ];
 }
 
 
@@ -236,9 +238,34 @@ sub _stack_previous_index {
     shift->_stack->[1][1]
 }
 
+sub _stack_delay_finish {
+    my ($self) = @_;
+    $self->_stack_previous_commands
+        ->[ $self->_stack_previous_index ][0] = 'x';
+}
+
+=item $robot->current
+
+For debugging Karel programs: returns the source of the currently
+executed command, current position in the source and the length of the
+command.
+
+=cut
+
+sub current {
+    my ($self) = @_;
+    my $command = (first { 'x' ne $_->[0][0][0] } @{ $self->_stack })
+               // $self->_stacked;
+    my $current = $command->[-1];
+    my ($from, $length) = @{ $command->[0][ $command->[-2] ][-1] };
+    my $known = $self->knowledge->{ $current // q() };
+    my $src = ref $current ? $current->[0] : $known->[1];
+    return $src, $from, $length
+}
+
 sub _run {
-    my ($self, $prog) = @_;
-    $self->_set__stack([ [$prog, 0] ]);
+    my ($self, $prog, $current) = @_;
+    $self->_set__stack([ [ $prog, 0, $current ] ]);
 }
 
 =item $robot->run($command_name)
@@ -250,7 +277,7 @@ Run the given command.
 sub run {
     my ($self, $command) = @_;
     my $parsed = $self->parser->parse("run $command");
-    $self->_run($$parsed);
+    $self->_run($$parsed, [$command]);
 }
 
 =item $robot->forward
@@ -280,7 +307,7 @@ sub repeat {
     my ($self, $count, $commands) = @_;
     if ($count) {
         $self->_stack_command->[1] = $count - 1;
-        $self->_push_stack($commands);
+        $self->_push_stack($commands);#, $self->_stack->[1][-1]);
         return CONTINUE
 
     } else {
@@ -387,7 +414,7 @@ sub call {
     my ($self, $command_name) = @_;
     my $commands = $self->knows($command_name);
     if ($commands) {
-        $self->_push_stack($commands);
+        $self->_push_stack($commands, $command_name);
     } else {
         croak "Unknown command $command_name.";
     }
@@ -415,7 +442,8 @@ sub step {
 
     my ($commands, $index) = @{ $self->_stacked };
 
-    my $command = $commands->[$index];
+    my $command;
+    $command = defined $index ? $commands->[$index] : ['x'];
     my $action = { f   => 'forward',
                    l   => 'left',
                    p   => 'pick_mark',
@@ -442,12 +470,9 @@ sub step {
           }
       },
       CONTINUE, sub { @_ = ($self); goto &step },
-      FINISHED_DELAYED, sub {
-          $self->_stack_previous_commands
-               ->[ $self->_stack_previous_index ][0] = 'x';
-      },
+      FINISHED_DELAYED, sub { $self->_stack_delay_finish },
       QUIT, sub { },
-    }->{ $finished }->();
+    }->{$finished}->();
 }
 
 =back

@@ -23,6 +23,7 @@ t/50-parser.t
 t/55-parser-cz.t
 t/60-learn.t
 t/70-czech.t
+t/80-debug.t
 t/manifest.t
 t/minimal.kg
 t/pod-coverage.t

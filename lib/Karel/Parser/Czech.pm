@@ -37,7 +37,7 @@ use namespace::clean;
 
     'Karel::Parser::Actions'->import(qw( def concat left forward pick
                                          drop stop repeat While If
-                                         negate call list defs ));
+                                         negate call list defs run ));
 
     sub object {
         { značka => 'm',
@@ -72,37 +72,50 @@ my $dsl = << '__DSL__';
 :default ::= action => ::undef
 lexeme default = latm => 1
 
-START      ::= Defs                                          action => ::first
-             | ('run' SC) Command                            action => [value]
+START      ::= Defs                       action => ::first
+             | (Run SC) Command           action => run
+Run        ::= 'run'                      action => [ values, start, length ]
 
-Defs       ::= Def+  separator => SC                         action => defs
-Def        ::= (SCMaybe) (< prikaz >) (SC) NewCommand (SC) Prog (SC) (konec)
-                                                             action => def
-NewCommand ::= alpha valid_name                              action => concat
-Prog       ::= Commands                                      action => ::first
-Commands   ::= Command+  separator => SC                     action => list
-Command    ::= vlevo                                         action => left
-             | krok                                          action => forward
-             | poloz                                         action => drop
-             | zvedni                                        action => pick
-             | stuj                                          action => stop
-             | (opakuj SC) Num (SC Times SC) Prog (SC hotovo)
-                                                             action => repeat
-             | (dokud SC) Condition (SC) Prog (hotovo)       action => While
-             | (kdyz SC) Condition (SC) Prog (hotovo)        action => If
-             | (kdyz SC) Condition (SC) Prog (jinak SC) Prog (hotovo)
-                                                             action => If
-             | NewCommand                                    action => call
-Condition  ::= (je SC) Object                                action => ::first
-             | (neni SC) Object                              action => negate
-Object     ::= znacka                                        action => object
-             | zed                                           action => object
-             | sever                                         action => object
-             | vychod                                        action => object
-             | jih                                           action => object
-             | zapad                                         action => object
-Num        ::= non_zero                                      action => ::first
-             | non_zero digits                               action => concat
+Defs       ::= Def+  separator => SC      action => defs
+Def        ::= Def2                       action => [ values, start, length ]
+Def2       ::= (SCMaybe) (prikaz) (SC) CommandDef (SC) Prog (SC) (konec)
+                                          action => def
+NewCommand ::= CommandDef                 action => [ values, start, length ]
+CommandDef ::= alpha valid_name           action => concat
+Prog       ::= Commands                   action => ::first
+Commands   ::= Command+  separator => SC  action => list
+Command    ::= Vlevo                      action => left
+             | Krok                       action => forward
+             | Poloz                      action => drop
+             | Zvedni                     action => pick
+             | Stuj                       action => stop
+             | Opakuj                     action => repeat
+             | Dokud                      action => While
+             | Kdyz                       action => If
+             | NewCommand                 action => call
+Vlevo      ::= vlevo                      action => [ start, length ]
+Krok       ::= krok                       action => [ start, length ]
+Poloz      ::= poloz                      action => [ start, length ]
+Zvedni     ::= zvedni                     action => [ start, length ]
+Stuj       ::= stuj                       action => [ start, length ]
+Opakuj     ::= (opakuj SC) Num (SC Times SC) Prog (SC hotovo)
+                                          action => [ values, start, length ]
+Dokud      ::= (dokud SC) Condition (SC) Prog (hotovo)
+                                          action => [ values, start, length ]
+Kdyz       ::= (kdyz SC) Condition (SC) Prog (hotovo)
+                                          action => [ values, start, length ]
+             | (kdyz SC) Condition (SC) Prog (SC jinak SC) Prog (hotovo)
+                                          action => [ values, start, length ]
+Condition  ::= (je SC) Object             action => ::first
+             | (neni SC) Object           action => negate
+Object     ::= znacka                     action => object
+             | zed                        action => object
+             | sever                      action => object
+             | vychod                     action => object
+             | jih                        action => object
+             | zapad                      action => object
+Num        ::= non_zero                   action => ::first
+             | non_zero digits            action => concat
 Times      ::= krat
              | x
 Comment    ::= (octothorpe non_lf lf)

@@ -53,7 +53,7 @@ describe 'Karel::Robot internally' => sub {
     my $robot_running_a_structure = sub {
         my ($grid, $struct) = @_;
         my $r = 'Karel::Robot'->new;
-        $r->load_grid( string => $grid ) if $grid;
+        $r->load_grid( string => $grid );
         $r->_run($struct);
         return $r
     };
@@ -83,13 +83,13 @@ describe 'Karel::Robot internally' => sub {
         my $r = $robot_running_a_structure->(
             $GRID, [ ['r', 3, [ ['r', 2, [ ['l'] ] ] ] ], ['f'] ]
         );
-        is count_steps($r), 11;
+        is count_steps($r), 12;
         cmp_methods $r, [ direction => 'S', y => 3 ];
     };
 
     it 'steps through dropping' => sub {
         my $r = $robot_running_a_structure->($GRID, [ ['r', 9, [ ['d'] ] ] ]);
-        is count_steps($r), 10;
+        is count_steps($r), 11;
         is $r->cover, '9';
     };
 
@@ -97,7 +97,7 @@ describe 'Karel::Robot internally' => sub {
         my $r = $robot_running_a_structure->(
             $GRID_9_MARKS, [ ['r', 3, [ ['r', 3, [ ['p'] ] ] ] ] ]
         );
-        is count_steps($r), 13;
+        is count_steps($r), 14;
         is $r->cover, ' ';
     };
 
@@ -139,7 +139,8 @@ describe 'Karel::Robot internally' => sub {
     it 'calls external commands' => sub {
         my $r = $robot_running_a_structure->(
             $GRID, [ [ 'c', 'right' ], ['l'] ]);
-        $r->_set_knowledge({ right => [ [ 'r', 3, [ ['l'] ] ] ] });
+        $r->_set_knowledge({ right => [ [ [ 'r', 3, [ ['l'] ] ] ],
+                                        'definition']  });
         count_steps($r);
         is $r->direction, 'N';
     };

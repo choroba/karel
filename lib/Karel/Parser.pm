@@ -22,27 +22,44 @@ use namespace::clean;
 
     use parent 'Exporter';
     our @EXPORT_OK = qw{ def concat left forward pick drop stop repeat
-                         While If first_ch negate call list defs };
+                         While If first_ch negate call list defs run };
 
     sub def      { [ $_[1], $_[2] ] }
     sub concat   { $_[1] . $_[2] }
-    sub left     { ['l'] }
-    sub forward  { ['f'] }
-    sub pick     { ['p'] }
-    sub drop     { ['d'] }
-    sub stop     { ['q'] }
-    sub repeat   { ['r', $_[1], $_[2] ] }
-    sub While    { ['w', $_[1], $_[2] ] }
-    sub If       { ['i', $_[1], $_[2], $_[3]] }
+    sub left     { [ l => $_[1] ] }
+    sub forward  { [ f => $_[1] ] }
+    sub pick     { [ p => $_[1] ] }
+    sub drop     { [ d => $_[1] ] }
+    sub stop     { [ q => $_[1] ] }
+    sub repeat   { complex_command( r => @_ ) }
+    sub While    { complex_command( w => @_ ) }
+    sub If       { [ i => @{ $_[1] }[ 0, 1 ],
+                     ref $_[1][2] ? $_[1][2] : [['x']], # else
+                     [ @{ $_[1] }[ -2, -1 ] ] ] }
     sub first_ch { substr $_[1], 0, 1 }
     sub negate   { '!' . $_[1] }
-    sub call     { $_[0]{ $_[1] } = 1; ['c', $_[1] ] }
+    sub call     { $_[0]{ $_[1][0] } = 1;
+                   [ 'c', $_[1][0], [ @{ $_[1] }[ 1, 2 ] ] ] }
     sub list     { [ grep defined, @_[ 1 .. $#_ ] ] }
+
     sub defs {
         my $unknown = shift;
         my %h;
-        $h{ $_->[0] }= $_->[1] for @_;
+        for my $command (@_) {
+            $h{ $command->[0][0] } = [ $command->[0][1], @{ $command }[ 1, 2 ] ];
+        }
         return [ \%h, $unknown ]
+    }
+
+    sub run {
+        shift;
+        $_[0][-1][0] -= length 'run ';
+        [ @_ ]
+    }
+
+    sub complex_command {
+        my $cmd = shift;
+        [ $cmd => @{ $_[1] }[ 0, 1 ],  [ @{ $_[1] }[ 2, 3 ] ] ]
     }
 
 }
@@ -64,42 +81,58 @@ my $dsl = << '__DSL__';
 :default ::= action => ::undef
 lexeme default = latm => 1
 
-START      ::= Defs                                          action => ::first
-             | ('run' SC) Command                            action => [value]
+START      ::= Defs                       action => ::first
+             | (Run SC) Command           action => run
+Run        ::= 'run'                      action => [ values, start, length ]
 
-Defs       ::= Def+  separator => SC                         action => defs
-Def        ::= (SCMaybe) (command) (SC) NewCommand (SC) Prog (SC) (end)
-                                                             action => def
-NewCommand ::= alpha valid_name                              action => concat
-Prog       ::= Commands                                      action => ::first
-Commands   ::= Command+  separator => SC                     action => list
-Command    ::= left                                          action => left
-             | forward                                       action => forward
-             | drop_mark                                     action => drop
-             | pick_mark                                     action => pick
-             | stop                                          action => stop
-             | (repeat SC) Num (SC Times SC) Prog (SC done)
-                                                             action => repeat
-             | (while SC) Condition (SC) Prog (done)         action => While
-             | (if SC) Condition (SC) Prog (done)            action => If
-             | (if SC) Condition (SC) Prog (else SC) Prog (done)
-                                                             action => If
-             | NewCommand                                    action => call
-Condition  ::= (there quote s SC a SC) Covering              action => ::first
-             | (Negation SC) Covering                        action => negate
-             | (facing SC) Wind                              action => ::first
-             | (not SC facing SC) Wind                       action => negate
+Defs       ::= Def+  separator => SC      action => defs
+Def        ::= Def2                       action => [ values, start, length ]
+Def2       ::= (SCMaybe) (command) (SC) CommandDef (SC) Prog (SC) (end)
+                                          action => def
+NewCommand ::= CommandDef                 action => [ values, start, length ]
+CommandDef ::= alpha valid_name           action => concat
+Prog       ::= Commands                   action => ::first
+Commands   ::= Command+  separator => SC  action => list
+Command    ::= Left                       action => left
+             | Forward                    action => forward
+             | Drop_mark                  action => drop
+             | Pick_mark                  action => pick
+             | Stop                       action => stop
+             | Repeat                     action => repeat
+             | While                      action => While
+             | If                         action => If
+             | NewCommand                 action => call
+Left       ::= left                       action => [ start, length ]
+Forward    ::= forward                    action => [ start, length ]
+Drop_mark  ::= drop_mark                  action => [ start, length ]
+Pick_mark  ::= pick_mark                  action => [ start, length ]
+Stop       ::= stop                       action => [ start, length ]
+Repeat     ::= (repeat SC) Num (SC Times SC) Prog (SC done)
+                                          action => [ values, start, length ]
+While      ::= (while SC) Condition (SC) Prog (done)
+                                          action => [ values, start, length ]
+If         ::= (if SC) Condition (SC) Prog (done)
+                                          action => [ values, start, length ]
+             | (if SC) Condition (SC) Prog (SC else SC) Prog (done)
+                                          action => [ values, start, length ]
+Condition  ::= (there quote s SC a SC) Covering
+                                          action => ::first
+             | (there SC is SC a SC) Covering
+                                          action => ::first
+             | (Negation SC) Covering     action => negate
+             | (facing SC) Wind           action => ::first
+             | (not SC facing SC) Wind    action => negate
 Negation   ::= (there SC isn quote t SC a)
              | (there SC is SC no)
              | (there quote s SC no)
-Covering   ::= mark                                          action => first_ch
-             | wall                                          action => first_ch
-Wind       ::= North                                         action => first_ch
-             | East                                          action => first_ch
-             | South                                         action => first_ch
-             | West                                          action => first_ch
-Num        ::= non_zero                                      action => ::first
-             | non_zero digits                               action => concat
+Covering   ::= mark                       action => first_ch
+             | wall                       action => first_ch
+Wind       ::= North                      action => first_ch
+             | East                       action => first_ch
+             | South                      action => first_ch
+             | West                       action => first_ch
+Num        ::= non_zero                   action => ::first
+             | non_zero digits            action => concat
 Times      ::= times
              | x
 Comment    ::= (octothorpe non_lf lf)
@@ -153,7 +186,7 @@ sub _build__grammar {
 
 C<$new_commands> is a hash that you can use to teach the robot:
 
-  $robot->_learn($_, $new_commands->{$_}) for keys %$new_commands;
+  $robot->_learn($_, $new_commands->{$_}, $definition) for keys %$new_commands;
 
 C<$unknwon> is a hash whose keys are all the non-basic commands needed
 to run the parsed programs.
@@ -221,6 +254,13 @@ sub parse {
     return $input =~ /^run / ? $value : @$$value
 }
 
+
+{   package
+        Karel::Parser::Exception;
+
+    use overload '""' => sub { use Data::Dumper; Dumper \@_ };
+
+}
 
 =back
 
