@@ -442,7 +442,8 @@ sub step {
 
     my ($commands, $index) = @{ $self->_stacked };
 
-    my $command = $commands->[$index];
+    my $command;
+    $command = defined $index ? $commands->[$index] : ['x'];
     my $action = { f   => 'forward',
                    l   => 'left',
                    p   => 'pick_mark',

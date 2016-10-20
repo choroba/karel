@@ -44,7 +44,6 @@ __CMD__
             $r->run('westward');
             $r->step while $r->is_running;
             is $r->direction, 'W';
-
         };
 
         it 'ignores run without step' => sub {
