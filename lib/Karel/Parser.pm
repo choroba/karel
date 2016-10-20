@@ -117,6 +117,8 @@ If         ::= (if SC) Condition (SC) Prog (done)
                                           action => [ values, start, length ]
 Condition  ::= (there quote s SC a SC) Covering
                                           action => ::first
+             | (there SC is SC a SC) Covering
+                                          action => ::first
              | (Negation SC) Covering     action => negate
              | (facing SC) Wind           action => ::first
              | (not SC facing SC) Wind    action => negate
