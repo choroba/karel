@@ -22,6 +22,27 @@ __EOF__
 
 my $program2 = 'command lleft left left left left left end';
 
+my @highlighted = (
+    'ten-steps',
+    (
+        'repeat 10 times.*done',
+        'repeat 2 x turn-about done',
+        (
+            'repeat 2 x lleft done',
+            ('left') x 5,
+            ('repeat 2 x lleft done') x 2,
+            ('left') x 5,
+            ('repeat 2 x lleft done') x 2,
+            ('repeat 2 x turn-about done') x 2,
+        ) x 2,
+        'repeat 10 times.*done'
+    ) x 10,
+    'repeat 10 times.*done',
+    'ten-steps',
+    'NO MORE COMMANDS',
+);
+
+
 my $r = 'Karel::Robot'->new;
 $r->learn($program2);
 $r->learn($program1);
@@ -34,8 +55,9 @@ describe 'source code' => sub {
             my ($src, $from, $length) = $r->current;
             substr $src, $from + $length, 0, '>>';
             substr $src, $from, 0, '<<';
-            print STDERR $src, "\n---\n";
-            print STDERR "STEP: ", $r->step, "\n";
+            $r->step;
+            my $re = shift @highlighted;
+            like $src, qr/<<$re>>/s;
         }
     };
 
