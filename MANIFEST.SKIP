@@ -5,3 +5,8 @@ MANIFEST\.SKIP
 cover_db/
 cover_db\.[0-9]+/
 Makefile\.old
+Karel-[\d.]+/
+Karel-[\d.]+tar\.gz
+\.travis\.yml
+coverages.data
+TAGS
