@@ -1,5 +1,10 @@
 Revision history for Karel
 
+0.04    2016-11-28
+
+        - Debugging enabled - source and position available after each
+          step.
+
 0.03    2016-09-04
 
         - Fix minimal Marpa version.
