@@ -34,5 +34,8 @@ WriteMakefile(
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     macro => { TARFLAGS => '--format=ustar -cvf' },
     clean => { FILES => 'Karel-*' },
+    META_MERGE => {
+        resources => { repository => 'https://github.com/choroba/karel' },
+    },
 );
 
