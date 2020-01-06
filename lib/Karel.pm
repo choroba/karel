@@ -77,7 +77,7 @@ Karel Čapek, the author of R.U.R. (1920).
 Copyright 2015 - 2016 E. Choroba.
 
 This program is free software; you can redistribute it and/or modify it
-under the terms of the the Artistic License (2.0). You may obtain a
+under the terms of the Artistic License (2.0). You may obtain a
 copy of the full license at:
 
 L<http://www.perlfoundation.org/artistic_license_2_0>
