@@ -6,7 +6,7 @@ Karel::Robot
 
 =head1 DESCRIPTION
 
-Basic robot class. It represents a robot wihtout a grid.
+Basic robot class. It represents a robot without a grid.
 
 =head1 METHODS
 
@@ -52,7 +52,7 @@ sub set_grid {
 
 =item class_with_grid
 
-The class to which the robot is reblessed after obraining the grid. By
+The class to which the robot is reblessed after obtaining the grid. By
 default, it's the robot's class plus C<::WithGrid>.
 
 =cut
