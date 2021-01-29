@@ -1,0 +1,51 @@
+name: CI
+
+on:
+    push:
+        branches: '*'
+    pull_request:
+        branches: '*'
+
+jobs:
+  matrix-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+            - "5.10.1"
+            - "5.14.0"
+            - "5.24.0"
+            - "5.26.0"
+            - "5.28.0"
+            - "5.30.0"
+            - "5.32.0"
+    name: Perl ${{ matrix.perl-version }}
+    steps:
+      - uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl-version }}
+      - uses: actions/checkout@v2
+      - name: Regular tests
+        run: |
+            cpanm --installdeps --notest .
+            perl Makefile.PL
+            make
+            make test
+
+  author-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl-version:
+          - 'latest'
+    container:
+      image: perldocker/perl-tester:${{ matrix.perl-version }}  # https://hub.docker.com/r/perldocker/perl-tester
+    name: Author ${{ matrix.perl-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prove with author tests
+        run: |
+            cpanm --installdeps .
+            RELEASE_TESTING=1 prove -vl t
