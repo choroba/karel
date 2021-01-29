@@ -168,6 +168,12 @@ sub load_grid {
     };
 }
 
+=item my $parser = $robot->parser
+
+An instance of L<Karel::Parser> used to parse the source code.
+
+=cut
+
 has parser => ( is      => 'ro',
                 default => sub { 'Karel::Parser'->new },
 );
@@ -208,6 +214,15 @@ sub learn {
         croak "Dont' know $command" unless $self->knows($command);
     }
 }
+
+=item $robot->knowledge
+
+All the commands the robot knows. Returns a hash reference, the
+commands are the keys, the values are array references [prog, code]
+where I<prog> is the bytecode corresponding to the command and I<code>
+is the source code.
+
+=cut
 
 has knowledge => ( is => 'rwp' );
 

@@ -154,8 +154,6 @@ __DSL__
 $dsl .= join "\n", map "$_ ~ '$terminals{$_}'", keys %terminals;
 
 
-has parser => ( is => 'ro' );
-
 has _grammar => ( is => 'lazy' );
 
 sub _dsl { $dsl }

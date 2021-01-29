@@ -31,6 +31,7 @@ use constant {
     FINISHED_DELAYED => 2,
     QUIT             => -1,
 };
+use namespace::clean;
 use Moo::Role;
 requires qw{ set_grid knows };
 
@@ -196,6 +197,11 @@ sub facing {
     $self->grid->at($self->facing_coords)
 }
 
+=item $robot->is_running
+
+Returns true if the robot is running a command, false otherwise.
+
+=cut
 
 has _stack => ( is        => 'rwp',
                 predicate => 'is_running',
