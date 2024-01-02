@@ -13,19 +13,15 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
-            - "5.10.1"
-            - "5.14.0"
-            - "5.24.0"
+            - "5.12.0"
             - "5.26.0"
-            - "5.28.0"
-            - "5.30.0"
-            - "5.32.0"
+            - "5.38.0"
     name: Perl ${{ matrix.perl-version }}
     steps:
       - uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: ${{ matrix.perl-version }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Regular tests
         run: |
             cpanm --installdeps --notest .
@@ -44,7 +40,7 @@ jobs:
       image: perldocker/perl-tester:${{ matrix.perl-version }}  # https://hub.docker.com/r/perldocker/perl-tester
     name: Author ${{ matrix.perl-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Prove with author tests
         run: |
             cpanm --installdeps .
